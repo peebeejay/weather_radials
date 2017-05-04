@@ -7,6 +7,7 @@ import Root from './components/root';
 import * as WeatherAPIUtil from './util/weather_api_util.js';
 import * as d3 from 'd3';
 import { fetch5Day, fetchDaily } from './actions/weather_actions.js';
+import { geocode } from './util/weather_api_util';
 // END REMOVE IN PRODUCTION
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -15,7 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
   window.fetch5Day = WeatherAPIUtil.fetch5Day;
   window.fetchDaily = WeatherAPIUtil.fetchDaily;
   window.d3 = d3;
-  // debugger
+  window.geocode = geocode;
+  
   const root = document.getElementById("root");
   ReactDOM.render(<Root store={ store } />, root);
 });

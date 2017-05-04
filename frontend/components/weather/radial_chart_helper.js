@@ -1,3 +1,5 @@
+import * as d3 from 'd3';
+
 export const generateSpokes = (barWrapper, innerRadius, outerRadius) => {
   //Add Primary Spoke
   barWrapper.append("line")
@@ -18,6 +20,7 @@ export const generateSpokes = (barWrapper, innerRadius, outerRadius) => {
   }
 };
 
+
 export const plotBars = (_weather, barWrapper, angle, barScale, colorScale) => {
   let tempDifferences = [];
 
@@ -37,5 +40,21 @@ export const plotBars = (_weather, barWrapper, angle, barScale, colorScale) => {
       return barScale(d.main.temp_max) - barScale(d.main.temp_min); })
     .attr("x", -0.75)
     .attr("y", function(d,i) {return barScale(d.main.temp_min); })
-    .style("fill", function(d) { return colorScale((d.main.temp_max - d.main.temp_min) / 2.0); });
+    .style("fill", function(d) {
+      // debugger
+      return colorScale((d.main.temp_max + d.main.temp_min) / 2.0); });
+};
+
+export const plotDates = (_weather, outerRadius, barWrapper) => {
+  for (let x = 0; x < 5; x++) {
+    let date = d3.timeFormat("%B %d")(new Date(_weather.list[x * 8].dt * 1000));
+    // console.log(date);
+    barWrapper.append("text")
+    .attr("class", "date")
+    .attr("x", 7)
+    .attr("y", -outerRadius * 1.1)
+    .attr("transform", `rotate(${x * 72})`)
+    .attr("dy", "0.9em")
+    .text(date);
+  }
 };
