@@ -45,3 +45,7 @@
   stroke: #E8E8E8;
   stroke-width: 1px;
 }
+
+.tempBar:hover {
+  stroke: black;
+}

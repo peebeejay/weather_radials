@@ -43,13 +43,13 @@ class RadialChart extends React.Component {
     	innerRadius = outerRadius * 0.4;
 
     let colorScale = d3.scaleLinear()
-    	.domain([-15, 7.5, 30])
+    	.domain([0, 50, 100])
     	.range(["#2c7bb6", "#ffff8c", "#d7191c"])
     	.interpolate(d3.interpolateHcl);
 
     let barScale = d3.scaleLinear()
     	.range([innerRadius, outerRadius])
-    	.domain([-15,30]);
+    	.domain([0, 100]);
 
     let angle = d3.scaleLinear()
     	.range([-180, 180])
@@ -65,7 +65,7 @@ class RadialChart extends React.Component {
 
     //Draw gridlines below the bars
     let axes = barWrapper.selectAll(".gridCircles")
-     	.data([-20,-10,0,10,20,30])
+     	.data([0, 20, 40, 60, 80, 100])
      	.enter().append("g");
 
     //Draw the circles
@@ -78,7 +78,7 @@ class RadialChart extends React.Component {
     	.attr("class", "axisText")
     	.attr("y", function(d) { return barScale(d); })
     	.attr("dy", "0.3em")
-    	.text(function(d) { return d + "°C"});
+    	.text(function(d) { return d + "°F"});
 
     this.props.generateSpokes(barWrapper, innerRadius, outerRadius);
     this.props.plotBars(_weather, barWrapper, angle, barScale, colorScale);

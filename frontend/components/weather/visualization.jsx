@@ -17,7 +17,7 @@ class Visualization extends React.Component {
 
   componentWillMount() {
     this.props.removeWeather();
-    this.props.fetch5Day(40.7128, -74.0059)
+    this.props.fetch5Day(29.652491, 91.172112)
   }
 
   handleSubmit(e) {
