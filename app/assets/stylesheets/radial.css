@@ -49,3 +49,19 @@
 .tempBar:hover {
   stroke: black;
 }
+
+div.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 100px;
+  height: 30px;
+  padding: 8px;
+  font: 12px sans-serif;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border: 0px;
+  border-radius: 2px;
+  pointer-events: none;
+  font-weight: bold;
+  line-height: 1;
+}
