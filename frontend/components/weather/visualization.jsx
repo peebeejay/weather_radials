@@ -38,7 +38,7 @@ class Visualization extends React.Component {
 
   render() {
     if ( _.isEmpty(this.props.weather) ) {
-      return (<div>Loading Weather...</div> );
+      return (<div>Loading Weather......</div> );
     }
 
     return(
