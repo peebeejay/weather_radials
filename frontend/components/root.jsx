@@ -15,7 +15,7 @@ class Root extends React.Component {
       <Provider store={ this.props.store }>
         <Router history={ hashHistory }>
           <Route path="/" component={ App } >
-            <Route path="/vis" component={ Visualization } />
+            <IndexRoute component={ Visualization } />
           </Route>
         </Router>
       </Provider>
