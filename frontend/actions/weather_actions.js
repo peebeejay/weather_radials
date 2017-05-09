@@ -23,3 +23,9 @@ export const fetchDaily = (lat, lon) => dispatch => {
     (weather) => dispatch(receiveWeather(weather))
   );
 };
+
+export const fetchAnnual = (stationId, startDate, endDate) => dispatch => {
+  return WeatherAPIUtil.fetchAnnual(stationId, startDate, endDate).then(
+    (weather) => dispatch(receiveWeather(weather))
+  );
+};

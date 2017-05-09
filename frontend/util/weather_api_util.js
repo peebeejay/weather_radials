@@ -18,3 +18,17 @@ export const search = (location) => {
     url: `https://maps.googleapis.com/maps/api/geocode/json?address=${location}&key=AIzaSyBW-S4D3sWi25Qwr2UNbYaf1CguSP-Wfiw`
   });
 };
+
+// NOAA NCDC API util methods
+// Sample for Data request:
+// https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&startdate=2014-01-01&enddate=2015-01-01&stationid=GHCND:USW00014732&datatypeid=TMIN&units=standard&datatypeid=TMAX
+
+export const fetchAnnual = (stationId, startDate, endDate) => {
+  // Date Format: YYYY-MM-DD
+  return $.ajax({
+    method: "GET",
+    headers: { "token":"wUdKaVEYoXeeSRvoAIOPADrHwuzTZzYw" },
+    url: `https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&startdate=${startDate}&enddate=${endDate}&stationid=${stationId}&datatypeid=TMIN&datatypeid=TMAX&units=standard`
+
+  });
+};
