@@ -2,6 +2,7 @@ import React from 'react';
 import * as d3 from 'd3';
 import { generateSpokes, plotBars, plotDates } from './radial_chart_helper';
 import { connect } from 'react-redux';
+import { annualSelector } from '../../selectors/weather_selectors.js';
 
 class RadialChart extends React.Component {
   constructor(props) {
@@ -21,7 +22,9 @@ class RadialChart extends React.Component {
   }
 
   renderChart() {
-    console.log(`rendering the chart SVG objects for ${this.props.weather.city.name}`);
+
+    // debugger
+    console.log(`rendering the chart SVG objects for a city`);
     let _weather = this.props.weather;
 
     let margin = { top: 70, right: 20, bottom: 120, left: 20 };
@@ -53,7 +56,11 @@ class RadialChart extends React.Component {
 
     let angle = d3.scaleLinear()
     	.range([-180, 180])
-    	.domain(d3.extent( _weather.list, day => day.dt )
+    	.domain(d3.extent( _weather, day => {
+        // debugger
+        return day.date.getTime() / 1000;
+      }
+      )
     );
 
     let textWrapper = svg.append("g").attr("class", "textWrapper")
@@ -82,7 +89,7 @@ class RadialChart extends React.Component {
 
     this.props.generateSpokes(barWrapper, innerRadius, outerRadius);
     this.props.plotBars(_weather, barWrapper, angle, barScale, colorScale);
-    this.props.plotDates(_weather, outerRadius, barWrapper);
+    this.props.plotDates(outerRadius, barWrapper);
   }
 
   render() {
@@ -98,7 +105,7 @@ class RadialChart extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  weather: state.weather
+  weather: annualSelector(state.weather)
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

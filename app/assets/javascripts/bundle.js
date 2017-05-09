@@ -42442,6 +42442,8 @@ var _radial_chart_helper = __webpack_require__(139);
 
 var _reactRedux = __webpack_require__(37);
 
+var _weather_selectors = __webpack_require__(299);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -42480,7 +42482,9 @@ var RadialChart = function (_React$Component) {
   }, {
     key: 'renderChart',
     value: function renderChart() {
-      console.log('rendering the chart SVG objects for ' + this.props.weather.city.name);
+
+      // debugger
+      console.log('rendering the chart SVG objects for a city');
       var _weather = this.props.weather;
 
       var margin = { top: 70, right: 20, bottom: 120, left: 20 };
@@ -42500,8 +42504,9 @@ var RadialChart = function (_React$Component) {
 
       var barScale = d3.scaleLinear().range([innerRadius, outerRadius]).domain([0, 100]);
 
-      var angle = d3.scaleLinear().range([-180, 180]).domain(d3.extent(_weather.list, function (day) {
-        return day.dt;
+      var angle = d3.scaleLinear().range([-180, 180]).domain(d3.extent(_weather, function (day) {
+        // debugger
+        return day.date.getTime() / 1000;
       }));
 
       var textWrapper = svg.append("g").attr("class", "textWrapper").attr("transform", "translate(" + Math.max(-width / 2, -outerRadius - 170) + "," + 0 + ")");
@@ -42526,7 +42531,7 @@ var RadialChart = function (_React$Component) {
 
       this.props.generateSpokes(barWrapper, innerRadius, outerRadius);
       this.props.plotBars(_weather, barWrapper, angle, barScale, colorScale);
-      this.props.plotDates(_weather, outerRadius, barWrapper);
+      this.props.plotDates(outerRadius, barWrapper);
     }
   }, {
     key: 'render',
@@ -42550,7 +42555,7 @@ var RadialChart = function (_React$Component) {
 
 var mapStateToProps = function mapStateToProps(state, ownProps) {
   return {
-    weather: state.weather
+    weather: (0, _weather_selectors.annualSelector)(state.weather)
   };
 };
 
@@ -47738,10 +47743,6 @@ var _app = __webpack_require__(138);
 
 var _app2 = _interopRequireDefault(_app);
 
-var _visualization = __webpack_require__(140);
-
-var _visualization2 = _interopRequireDefault(_visualization);
-
 var _visualization_annual = __webpack_require__(141);
 
 var _visualization_annual2 = _interopRequireDefault(_visualization_annual);
@@ -47775,8 +47776,7 @@ var Root = function (_React$Component) {
           _react2.default.createElement(
             _reactRouter.Route,
             { path: '/', component: _app2.default },
-            _react2.default.createElement(_reactRouter.IndexRoute, { component: _visualization2.default }),
-            _react2.default.createElement(_reactRouter.Route, { path: '/annual', component: _visualization_annual2.default })
+            _react2.default.createElement(_reactRouter.IndexRoute, { component: _visualization_annual2.default })
           )
         )
       );
@@ -47906,248 +47906,41 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var generateSpokes = exports.generateSpokes = function generateSpokes(barWrapper, innerRadius, outerRadius) {
   //Add Primary Spoke
   barWrapper.append("line").attr("class", "yearLine").attr("x1", 0).attr("y1", -innerRadius * 0.65).attr("x2", 0).attr("y2", -outerRadius * 1.1);
-
-  for (var x = 1; x < 5; x++) {
-    barWrapper.append("line").attr("class", "dayLineSub").attr("x1", 0).attr("y1", -innerRadius * 0.82).attr("transform", "rotate(" + x * 72 + ")").attr("x2", 0).attr("y2", -outerRadius * 1.0);
-  }
 };
 
 var plotBars = exports.plotBars = function plotBars(_weather, barWrapper, angle, barScale, colorScale) {
   var div = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
 
-  var tempDifferences = [];
-
-  for (var x = 0; x < _weather.list.length - 1; x++) {
-    var temps = [_weather.list[x].main.temp, _weather.list[x + 1].main.temp].sort(function (a, b) {
-      return a - b;
-    });
-    tempDifferences.push({ dt: _weather.list[x].dt, main: { temp_min: temps[0], temp_max: temps[1] } });
-  }
-
-  barWrapper.selectAll(".tempBar").data(tempDifferences).enter().append("rect")
-  // .attr("class", "tempBar")
-  .attr("class", function (d, i) {
+  barWrapper.selectAll(".tempBar").data(_weather).enter().append("rect").attr("class", function (d, i) {
     return "tempBar tempBar-" + i;
   }).attr("transform", function (d, i) {
-    return "rotate(" + angle(d.dt) + ")";
-  }).attr("width", 10).attr("height", function (d, i) {
-    return barScale(d.main.temp_max) - barScale(d.main.temp_min);
+    return "rotate(" + angle(d.date.getTime() / 1000) + ")";
+  }).attr("width", 1.5).attr("height", function (d, i) {
+    return barScale(d.TMAX) - barScale(d.TMIN);
   }).attr("x", -0.75).attr("y", function (d, i) {
-    return barScale(d.main.temp_min);
+    return barScale(d.TMIN);
   }).attr("tempMin", function (d) {
-    return "" + d.main.temp_min;
+    return "" + d.TMIN;
   }).attr("tempMax", function (d) {
-    return "" + d.main.temp_max;
+    return "" + d.TMAX;
   }).attr("date", function (d) {
-    return "" + d3.timeFormat("%H:%M")(new Date(d.dt * 1000));
+    return "" + d3.timeFormat("%H:%M")(d.date);
   }).style("fill", function (d) {
-    return colorScale((d.main.temp_max + d.main.temp_min) / 2.0);
+    return colorScale((d.TMAX + d.TMIN) / 2.0);
   }).on("mouseover", function (d) {
     div.transition().duration(50).style("opacity", .9);
-    div.html(d3.timeFormat("%B %d, %Y %H:%M")(new Date(d.dt * 1000)) + "<br/> " + d.main.temp_min + "°F - " + d.main.temp_max + "°F").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
+    div.html(d3.timeFormat("%B %d, %Y")(d.date) + "<br/> " + d.TMIN + "°F - " + d.TMAX + "°F").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
   }).on("mouseout", function (d) {
     div.transition().duration(500).style("opacity", 0);
   });
 };
 
-var plotDates = exports.plotDates = function plotDates(_weather, outerRadius, barWrapper) {
-  for (var x = 0; x < 5; x++) {
-    var date = d3.timeFormat("%B %d")(new Date(_weather.list[x * 8].dt * 1000));
-    // console.log(date);
-    barWrapper.append("text").attr("class", "date").attr("x", 7).attr("y", -outerRadius * 1.1).attr("transform", "rotate(" + x * 72 + ")").attr("dy", "0.9em").text(date);
-  }
+var plotDates = exports.plotDates = function plotDates(outerRadius, barWrapper) {
+  barWrapper.append("text").attr("class", "date").attr("x", 7).attr("y", -outerRadius * 1.1).attr("dy", "0.9em").text("January");
 };
 
 /***/ }),
-/* 140 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _react = __webpack_require__(7);
-
-var _react2 = _interopRequireDefault(_react);
-
-var _reactRedux = __webpack_require__(37);
-
-var _reactRouter = __webpack_require__(48);
-
-var _lodash = __webpack_require__(57);
-
-var _weather_actions = __webpack_require__(39);
-
-var _weather_api_util = __webpack_require__(24);
-
-var _d = __webpack_require__(32);
-
-var d3 = _interopRequireWildcard(_d);
-
-var _radial_chart = __webpack_require__(82);
-
-var _radial_chart2 = _interopRequireDefault(_radial_chart);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var Visualization = function (_React$Component) {
-  _inherits(Visualization, _React$Component);
-
-  function Visualization(props) {
-    _classCallCheck(this, Visualization);
-
-    var _this = _possibleConstructorReturn(this, (Visualization.__proto__ || Object.getPrototypeOf(Visualization)).call(this, props));
-
-    _this.handleSubmit = _this.handleSubmit.bind(_this);
-    _this._update = _this._update.bind(_this);
-    _this.state = { search: "" };
-    return _this;
-  }
-
-  _createClass(Visualization, [{
-    key: 'componentWillMount',
-    value: function componentWillMount() {
-      this.props.removeWeather();
-      this.props.fetch5Day(29.652491, 91.172112);
-    }
-  }, {
-    key: 'handleSubmit',
-    value: function handleSubmit(e) {
-      var _this2 = this;
-
-      e.preventDefault();
-      console.log("handling submit");
-      (0, _weather_api_util.search)(this.state.search).then(function (response) {
-        return _this2.props.fetch5Day(response.results[0].geometry.location.lat, response.results[0].geometry.location.lng);
-      }).then(function () {
-        return _this2.setState({ search: "" });
-      });
-    }
-  }, {
-    key: '_update',
-    value: function _update(e) {
-      e.preventDefault();
-      this.setState({ search: e.target.value });
-    }
-  }, {
-    key: 'render',
-    value: function render() {
-      if (_.isEmpty(this.props.weather)) {
-        return _react2.default.createElement(
-          'div',
-          null,
-          'Loading Weather......'
-        );
-      }
-
-      return _react2.default.createElement(
-        'div',
-        { className: 'content flex-right' },
-        _react2.default.createElement(
-          'div',
-          { className: 'sidebar-container' },
-          _react2.default.createElement(
-            'div',
-            { className: 'sidebar-header' },
-            _react2.default.createElement(
-              'h1',
-              null,
-              'Weather Forecast Radials'
-            )
-          ),
-          _react2.default.createElement(
-            'div',
-            { className: 'sidebar-search-container' },
-            _react2.default.createElement(
-              'form',
-              { onSubmit: this.handleSubmit },
-              _react2.default.createElement('input', { className: 'search-input',
-                placeholder: 'Search',
-                onChange: this._update,
-                value: this.state.search }),
-              _react2.default.createElement(
-                'button',
-                { className: 'search-button' },
-                _react2.default.createElement('i', { className: 'fa fa-search' })
-              )
-            )
-          ),
-          _react2.default.createElement(
-            'div',
-            { className: 'sidebar-footer-container' },
-            _react2.default.createElement(
-              'div',
-              { className: 'sidebar-footer' },
-              _react2.default.createElement(
-                'span',
-                null,
-                'Jay Puntham-Baker -',
-                _react2.default.createElement(
-                  'a',
-                  { href: 'http://github.com/vdersar1/weather_lite' },
-                  ' Github'
-                )
-              )
-            )
-          )
-        ),
-        _react2.default.createElement(
-          'div',
-          { className: 'radial-container' },
-          _react2.default.createElement(
-            'div',
-            null,
-            _react2.default.createElement(
-              'h1',
-              { className: 'radial-header' },
-              'Radial 5-Day Forecast for ',
-              this.props.weather.city.name,
-              ', ',
-              this.props.weather.city.country
-            )
-          ),
-          _react2.default.createElement(_radial_chart2.default, { weather: this.props.weather })
-        )
-      );
-    }
-  }]);
-
-  return Visualization;
-}(_react2.default.Component);
-
-var mapStateToProps = function mapStateToProps(state, ownProps) {
-  return {
-    weather: state.weather
-  };
-};
-
-var mapDispatchToProps = function mapDispatchToProps(dispatch, ownProps) {
-  return {
-    fetch5Day: function fetch5Day(lat, lon) {
-      return dispatch((0, _weather_actions.fetch5Day)(lat, lon));
-    },
-    removeWeather: function removeWeather() {
-      return dispatch((0, _weather_actions.removeWeather)());
-    }
-  };
-};
-
-exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)((0, _reactRouter.withRouter)(Visualization));
-
-/***/ }),
+/* 140 */,
 /* 141 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -48242,7 +48035,6 @@ var VisualizationAnnual = function (_React$Component) {
         );
       }
 
-      debugger;
       return _react2.default.createElement(
         'div',
         { className: 'content flex-right' },
@@ -48306,7 +48098,7 @@ var VisualizationAnnual = function (_React$Component) {
               'Annual Radial Weather Visualization for blah'
             )
           ),
-          'placeholder for annual graph'
+          _react2.default.createElement(_radial_chart2.default, { weather: this.props.weather })
         )
       );
     }

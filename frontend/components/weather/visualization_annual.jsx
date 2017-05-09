@@ -42,7 +42,6 @@ class VisualizationAnnual extends React.Component {
       return (<div>Loading Annual Weather......</div> );
     }
 
-    debugger
     return(
       <div className="content flex-right">
         <div className="sidebar-container">
@@ -71,8 +70,7 @@ class VisualizationAnnual extends React.Component {
           <div>
             <h1 className="radial-header">Annual Radial Weather Visualization for blah</h1>
           </div>
-          {/*<RadialChart weather={ this.props.weather } />*/}
-          placeholder for annual graph
+          <RadialChart weather={ this.props.weather } />
         </div>
       </div>
     )
