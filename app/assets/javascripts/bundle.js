@@ -2919,7 +2919,7 @@ var fetchAnnual = exports.fetchAnnual = function fetchAnnual(stationId, startDat
   return $.ajax({
     method: "GET",
     headers: { "token": "wUdKaVEYoXeeSRvoAIOPADrHwuzTZzYw" },
-    url: "https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&startdate=" + startDate + "&enddate=" + endDate + "&stationid=" + stationId + "&datatypeid=TMIN&datatypeid=TMAX&units=standard"
+    url: "https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&startdate=" + startDate + "&enddate=" + endDate + "&stationid=" + stationId + "&datatypeid=TMIN&datatypeid=TMAX&units=standard&limit=750"
 
   });
 };
@@ -48172,6 +48172,8 @@ var _lodash = __webpack_require__(57);
 
 var _weather_actions = __webpack_require__(39);
 
+var _weather_selectors = __webpack_require__(299);
+
 var _weather_api_util = __webpack_require__(24);
 
 var _d = __webpack_require__(32);
@@ -48240,6 +48242,7 @@ var VisualizationAnnual = function (_React$Component) {
         );
       }
 
+      debugger;
       return _react2.default.createElement(
         'div',
         { className: 'content flex-right' },
@@ -48314,7 +48317,7 @@ var VisualizationAnnual = function (_React$Component) {
 
 var mapStateToProps = function mapStateToProps(state, ownProps) {
   return {
-    weather: state.weather
+    weather: (0, _weather_selectors.annualSelector)(state.weather)
   };
 };
 
@@ -65445,6 +65448,58 @@ function symbolObservablePonyfill(root) {
 	}
 
 	return result;
+};
+
+/***/ }),
+/* 299 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.annualSelector = undefined;
+
+var _lodash = __webpack_require__(57);
+
+var annualSelector = exports.annualSelector = function annualSelector(weather) {
+  if (!_.isEmpty(weather)) {
+    var packaged_data = []; // [{ date: '...', TMAX: X, TMIN: Y }, {...}, ...]
+
+    var year = getOffsetDate(weather.results[0].date).getYear() + 1900;
+    var date_iterator = new Date(year, 0, 1);
+
+    for (var x = 0; x < 365; x++) {
+      var daily_data = { date: new Date(date_iterator), TMAX: 0, TMIN: 0 };
+
+      for (var y = 0; y < weather.results.length; y++) {
+        if (getOffsetDate(weather.results[y].date).getTime() === daily_data.date.getTime()) {
+          if (weather.results[y].datatype === "TMAX") {
+            daily_data.TMAX = weather.results[y].value;
+          } else if (weather.results[y].datatype === "TMIN") {
+            daily_data.TMIN = weather.results[y].value;
+          }
+        }
+      }
+
+      packaged_data.push(daily_data);
+      date_iterator.setDate(date_iterator.getDate() + 1);
+    }
+    return packaged_data;
+  } else {
+    return [];
+  }
+};
+
+// Helper Functions
+var getOffsetDate = function getOffsetDate(date) {
+  var _date_from_data = new Date(date);
+  var date_offset = _date_from_data.getTimezoneOffset() * 60000;
+  var new_date = new Date(_date_from_data.valueOf() + date_offset);
+
+  return new_date;
 };
 
 /***/ })

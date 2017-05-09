@@ -28,7 +28,7 @@ export const fetchAnnual = (stationId, startDate, endDate) => {
   return $.ajax({
     method: "GET",
     headers: { "token":"wUdKaVEYoXeeSRvoAIOPADrHwuzTZzYw" },
-    url: `https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&startdate=${startDate}&enddate=${endDate}&stationid=${stationId}&datatypeid=TMIN&datatypeid=TMAX&units=standard`
+    url: `https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&startdate=${startDate}&enddate=${endDate}&stationid=${stationId}&datatypeid=TMIN&datatypeid=TMAX&units=standard&limit=750`
 
   });
 };

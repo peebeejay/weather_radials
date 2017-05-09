@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { withRouter, Link } from 'react-router';
 import { isEmpty } from 'lodash';
 import { fetchAnnual, removeWeather } from '../../actions/weather_actions.js';
+import { annualSelector } from '../../selectors/weather_selectors.js';
 import { search } from '../../util/weather_api_util.js';
 import * as d3 from 'd3';
 import RadialChart from './radial_chart.jsx';
@@ -41,6 +42,7 @@ class VisualizationAnnual extends React.Component {
       return (<div>Loading Annual Weather......</div> );
     }
 
+    debugger
     return(
       <div className="content flex-right">
         <div className="sidebar-container">
@@ -78,7 +80,7 @@ class VisualizationAnnual extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  weather: state.weather
+  weather: annualSelector(state.weather)
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
