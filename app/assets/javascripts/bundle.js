@@ -42517,7 +42517,6 @@ exports.annualSelector = undefined;
 var _lodash = __webpack_require__(58);
 
 var annualSelector = exports.annualSelector = function annualSelector(weather) {
-  // debugger
   if (!_.isEmpty(weather)) {
     var packaged_data = []; // [{ date: '...', TMAX: X, TMIN: Y }, {...}, ...]
 
@@ -42534,6 +42533,15 @@ var annualSelector = exports.annualSelector = function annualSelector(weather) {
           } else if (weather.results[y].datatype === "TMIN") {
             daily_data.TMIN = weather.results[y].value;
           }
+        }
+      }
+
+      if (Math.abs(daily_data.TMAX - daily_data.TMIN) > 40 && (daily_data.TMAX === 0 || daily_data.TMIN === 0)) {
+
+        if (daily_data.TMIN === 0) {
+          daily_data.TMIN = daily_data.TMAX - 15;
+        } else if (daily_data.TMAX === 0) {
+          daily_data.TMAX = daily_data.TMIN + 15;
         }
       }
 
@@ -48148,9 +48156,9 @@ var RadialChart = function (_React$Component) {
       console.log('rendering the chart SVG objects for a city');
       var _weather = this.props.weather;
 
-      var margin = { top: 70, right: 20, bottom: 120, left: 20 };
+      var margin = { top: 70, right: 20, bottom: 20, left: 20 };
       var width = window.innerWidth - margin.left - margin.right - 400;
-      var height = window.innerHeight - margin.top - margin.bottom - 20;
+      var height = window.innerHeight - margin.top - margin.bottom - 120;
 
       // Clear existing
       var initial = d3.select('svg');
@@ -48166,7 +48174,6 @@ var RadialChart = function (_React$Component) {
       var barScale = d3.scaleLinear().range([innerRadius, outerRadius]).domain([0, 100]);
 
       var angle = d3.scaleLinear().range([-180, 180]).domain(d3.extent(_weather, function (day) {
-        // debugger
         return day.date.getTime() / 1000;
       }));
 
@@ -48255,18 +48262,20 @@ var d3 = _interopRequireWildcard(_d);
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var generateSpokes = exports.generateSpokes = function generateSpokes(barWrapper, innerRadius, outerRadius) {
-  //Add Primary Spoke
   barWrapper.append("line").attr("class", "yearLine").attr("x1", 0).attr("y1", -innerRadius * 0.65).attr("x2", 0).attr("y2", -outerRadius * 1.1);
 };
 
 var plotBars = exports.plotBars = function plotBars(_weather, barWrapper, angle, barScale, colorScale) {
-  var div = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
+  var div = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0).style("display", "none");
 
   barWrapper.selectAll(".tempBar").data(_weather).enter().append("rect").attr("class", function (d, i) {
     return "tempBar tempBar-" + i;
   }).attr("transform", function (d, i) {
     return "rotate(" + angle(d.date.getTime() / 1000) + ")";
   }).attr("width", 1.5).attr("height", function (d, i) {
+    if (d.TMAX === 0 && d.TMIN === 0 || barScale(d.TMAX) - barScale(d.TMIN) < 0) {
+      return 0;
+    }
     return barScale(d.TMAX) - barScale(d.TMIN);
   }).attr("x", -0.75).attr("y", function (d, i) {
     return barScale(d.TMIN);
@@ -48279,6 +48288,7 @@ var plotBars = exports.plotBars = function plotBars(_weather, barWrapper, angle,
   }).style("fill", function (d) {
     return colorScale((d.TMAX + d.TMIN) / 2.0);
   }).on("mouseover", function (d) {
+    div.style("display", "block");
     div.transition().duration(50).style("opacity", .9);
     div.html(d3.timeFormat("%B %d, %Y")(d.date) + "<br/> " + d.TMIN + "°F  to  " + d.TMAX + "°F").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
   }).on("mouseout", function (d) {
@@ -48376,21 +48386,17 @@ var Visualization = function (_React$Component) {
       var _this2 = this;
 
       e.preventDefault();
-      // debugger
       (0, _weather_api_util.search)(this.state.search).then(function (response) {
         _this2.state.location = response.results[0].formatted_address;
         return (0, _weather_api_util.fetchStation)(response.results[0].geometry.location.lat, response.results[0].geometry.location.lng, parseInt(_this2.state.year));
       }).then(function (results) {
-        // debugger
         return _this2.props.fetchAnnual(results.results[0].id, parseInt(_this2.state.year), _this2.state.location);
       }, function (err) {
-        // debugger
         _this2.setState({ loading: false });
       }).then(function () {
         _this2.state.header_year = _this2.state.year;
         _this2.setState({ loading: false, search: "", year: "" });
       });
-
       this.setState({ loading: true });
     }
   }, {

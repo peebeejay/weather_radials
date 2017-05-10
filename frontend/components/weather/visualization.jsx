@@ -28,28 +28,20 @@ class Visualization extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    // debugger
     search(this.state.search).then(
       (response) => {
         this.state.location = response.results[0].formatted_address;
         return fetchStation(response.results[0].geometry.location.lat, response.results[0].geometry.location.lng, parseInt(this.state.year))
         }
     ).then(
-      (results) => {
-        // debugger
-        return this.props.fetchAnnual(results.results[0].id, parseInt(this.state.year), this.state.location)
-      },
-      (err) => {
-        // debugger
-        this.setState({ loading: false })
-      }
+      (results) => this.props.fetchAnnual(results.results[0].id, parseInt(this.state.year), this.state.location),
+      (err) => { this.setState({ loading: false }) }
     ).then(
       () => {
         this.state.header_year = this.state.year;
         this.setState({ loading: false, search: "", year: "" })
       }
     )
-
     this.setState({ loading: true})
   }
 
@@ -92,7 +84,6 @@ class Visualization extends React.Component {
           <div>
             <Examples />
           </div>
-
 
           <div className="sidebar-footer-container">
             <div className="sidebar-footer">

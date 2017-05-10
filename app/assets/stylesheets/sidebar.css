@@ -32,7 +32,7 @@
 
 .sidebar-search-container .search-button {
     position: absolute;
-    right: 83px;
+    right: 90px;
     top: 10px;
     outline: none;
     background-color: transparent;
@@ -70,7 +70,6 @@
 }
 
 /*Example List CSS*/
-
 .example-list {
   list-style: none;
   display: flex;

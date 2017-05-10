@@ -1,7 +1,6 @@
 import { isEmpty } from 'lodash';
 
 export const annualSelector = (weather) => {
-  // debugger
   if (!_.isEmpty(weather)) {
     let packaged_data = []; // [{ date: '...', TMAX: X, TMIN: Y }, {...}, ...]
 
@@ -19,6 +18,16 @@ export const annualSelector = (weather) => {
           else if (weather.results[y].datatype === "TMIN") {
             daily_data.TMIN = weather.results[y].value;
           }
+        }
+      }
+
+      if (Math.abs(daily_data.TMAX - daily_data.TMIN) > 40  &&
+         (daily_data.TMAX === 0 || daily_data.TMIN === 0)) {
+
+        if (daily_data.TMIN === 0) {
+          daily_data.TMIN = daily_data.TMAX - 15;
+        } else if (daily_data.TMAX === 0) {
+          daily_data.TMAX = daily_data.TMIN + 15;
         }
       }
 

@@ -27,9 +27,9 @@ class RadialChart extends React.Component {
     console.log(`rendering the chart SVG objects for a city`);
     let _weather = this.props.weather;
 
-    let margin = { top: 70, right: 20, bottom: 120, left: 20 };
+    let margin = { top: 70, right: 20, bottom: 20, left: 20 };
     let width = window.innerWidth - margin.left - margin.right - 400;
-    let height = window.innerHeight - margin.top - margin.bottom - 20;
+    let height = window.innerHeight - margin.top - margin.bottom - 120;
 
     // Clear existing
     let initial = d3.select('svg');
@@ -57,10 +57,8 @@ class RadialChart extends React.Component {
     let angle = d3.scaleLinear()
     	.range([-180, 180])
     	.domain(d3.extent( _weather, day => {
-        // debugger
         return day.date.getTime() / 1000;
-      }
-      )
+      })
     );
 
     let textWrapper = svg.append("g").attr("class", "textWrapper")
