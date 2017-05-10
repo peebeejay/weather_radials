@@ -2,6 +2,7 @@ import React from 'react';
 import { search, fetchStation } from '../../util/weather_api_util.js';
 import { fetchAnnual, removeWeather } from '../../actions/weather_actions.js';
 import { connect } from 'react-redux';
+import Halogen from 'halogen';
 
 class ExampleItem extends React.Component {
   constructor(props) {
@@ -19,7 +20,7 @@ class ExampleItem extends React.Component {
         }
     ).then(
       (results) => {
-        return this.props.fetchAnnual(results.results[0].id, parseInt(this.props.year))
+        return this.props.fetchAnnual(results.results[0].id, parseInt(this.props.year), this.props.city)
       }
     ).then(
       () => {
@@ -36,6 +37,7 @@ class ExampleItem extends React.Component {
       <div className="example-item-container">
         <div className="example-item-image" onClick={ this.handleClick }>
           <img src={`app/assets/images/${this.props.image}.png`} />
+          { this.state.loading && <div className="spinner-img"><Halogen.ClipLoader color={'#4DAF7C'} /></div> }
         </div>
         <div className="example-item-header">
           { this.props.city + " " + this.props.year } -
@@ -48,7 +50,9 @@ class ExampleItem extends React.Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({ });
+const mapStateToProps = (store, ownProps) => ({
+  city: ownProps.city
+});
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   fetchAnnual: (stationId, startDate, endDate) => dispatch(fetchAnnual(stationId, startDate, endDate))

@@ -23,7 +23,7 @@ class Visualization extends React.Component {
 
   componentWillMount() {
     this.props.removeWeather();
-    this.props.fetchAnnual('GHCND:USW00014732', 2014);
+    this.props.fetchAnnual('GHCND:USW00014732', 2014, this.state.location);
   }
 
   handleSubmit(e) {
@@ -37,7 +37,7 @@ class Visualization extends React.Component {
     ).then(
       (results) => {
         // debugger
-        return this.props.fetchAnnual(results.results[0].id, parseInt(this.state.year))
+        return this.props.fetchAnnual(results.results[0].id, parseInt(this.state.year), this.state.location)
       },
       (err) => {
         // debugger
@@ -64,7 +64,6 @@ class Visualization extends React.Component {
     if ( _.isEmpty(this.props.weather) ) {
       return (<div>Loading Weather Radials......</div> );
     }
-    // debugger
 
     return(
       <div className="content flex-right">
@@ -107,7 +106,7 @@ class Visualization extends React.Component {
 
         <div className="radial-container">
           <div>
-            <h1 className="radial-header">Annual Radial Weather Visualization for { this.state.location } in { this.props.weather[0].date.getYear() + 1900 }</h1>
+            <h1 className="radial-header">Annual Radial Weather Visualization for { this.props.city } in { this.props.weather[0].date.getYear() + 1900 }</h1>
           </div>
           <RadialChart weather={ this.props.weather } />
         </div>
@@ -116,8 +115,9 @@ class Visualization extends React.Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  weather: annualSelector(state.weather)
+const mapStateToProps = (store, ownProps) => ({
+  weather: annualSelector(store.weather),
+  city: store.weather.city
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

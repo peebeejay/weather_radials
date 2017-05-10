@@ -59,11 +59,17 @@
   padding-top: 5px;
 }
 
-.spinner div{
+.spinner div {
   width: 15px !important;
   height: 15px !important;
 }
 
+.spinner-img div {
+  width: 25px !important;
+  height: 25px !important;
+}
+
+/*Example List CSS*/
 
 .example-list {
   list-style: none;
@@ -78,7 +84,11 @@
   margin-left: 10px;
 }
 
+.example-item-image {
+  position: relative;
+}
 .example-item-image > img {
+
   width: 75px;
   height: 75px;
   object-fit: cover;
@@ -90,6 +100,13 @@
 .example-item-image > img:hover {
   border: 1px solid #bbb;
   cursor: pointer;
+}
+
+.example-item-image .spinner-img {
+  position: absolute;
+  top: 33%;
+  left: 40%;
+
 }
 
 .example-item-header:hover {

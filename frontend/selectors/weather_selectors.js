@@ -1,6 +1,7 @@
 import { isEmpty } from 'lodash';
 
 export const annualSelector = (weather) => {
+  // debugger
   if (!_.isEmpty(weather)) {
     let packaged_data = []; // [{ date: '...', TMAX: X, TMIN: Y }, {...}, ...]
 

@@ -3,9 +3,10 @@ import * as WeatherAPIUtil from '../util/weather_api_util.js';
 export const RECEIVE_WEATHER = "RECEIVE_WEATHER";
 export const REMOVE_WEATHER = "REMOVE_WEATHER";
 
-export const receiveWeather = (weather) => ({
+export const receiveWeather = (weather, city) => ({
   type: RECEIVE_WEATHER,
-  weather
+  weather,
+  city
 });
 
 export const removeWeather = () => ({
@@ -24,8 +25,8 @@ export const fetchDaily = (lat, lon) => dispatch => {
   );
 };
 
-export const fetchAnnual = (stationId, startDate, endDate) => dispatch => {
-  return WeatherAPIUtil.fetchAnnual(stationId, startDate, endDate).then(
-    (weather) => dispatch(receiveWeather(weather))
+export const fetchAnnual = (stationId, year, city) => dispatch => {
+  return WeatherAPIUtil.fetchAnnual(stationId, year).then(
+    (weather) => dispatch(receiveWeather(weather, city))
   );
 };

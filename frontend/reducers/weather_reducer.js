@@ -7,7 +7,8 @@ const WeatherReducer = (state = {}, action) => {
 
   switch(action.type) {
     case RECEIVE_WEATHER:
-      return merge({}, action.weather);
+    // debugger
+      return merge({}, action.weather, { city: action.city.toString() });
 
     case REMOVE_WEATHER:
       return {};
