@@ -48,6 +48,7 @@
 
 .tempBar:hover {
   stroke: black;
+  cursor: pointer;
 }
 
 div.tooltip {
