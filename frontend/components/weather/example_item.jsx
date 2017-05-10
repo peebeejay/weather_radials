@@ -1,6 +1,6 @@
 import React from 'react';
 import { search, fetchStation } from '../../util/weather_api_util.js';
-import { fetchAnnual, removeWeather } from '../../actions/weather_actions.js';
+import { fetchAnnual } from '../../actions/weather_actions.js';
 import { connect } from 'react-redux';
 import Halogen from 'halogen';
 
@@ -14,21 +14,10 @@ class ExampleItem extends React.Component {
   handleClick(e) {
     e.preventDefault();
     search(this.props.city).then(
-      (response) => {
-        // this.state.location = response.results[0].formatted_address;
-        return fetchStation(response.results[0].geometry.location.lat, response.results[0].geometry.location.lng, parseInt(this.props.year))
-        }
-    ).then(
-      (results) => {
-        return this.props.fetchAnnual(results.results[0].id, parseInt(this.props.year), this.props.city)
-      }
-    ).then(
-      () => {
-        // this.state.header_year = this.props.year;
-        this.setState({ loading: false })
-      }
-    )
-
+      response => fetchStation(response.results[0].geometry.location.lat, response.results[0].geometry.location.lng, parseInt(this.props.year))).then(
+      results => this.props.fetchAnnual(results.results[0].id, parseInt(this.props.year), this.props.city)).then(
+      () => this.setState({ loading: false })
+    );
     this.setState({ loading: true})
   }
 

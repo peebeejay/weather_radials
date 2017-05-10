@@ -22,8 +22,6 @@ class RadialChart extends React.Component {
   }
 
   renderChart() {
-
-    // debugger
     console.log(`rendering the chart SVG objects for a city`);
     let _weather = this.props.weather;
 
