@@ -17,7 +17,7 @@ class Visualization extends React.Component {
     this._update = this._update.bind(this);
     this.state = { search: "", year: "",
                    location: "New York City", header_year: "2014",
-                   lat: "", lon: "", loading: false
+                   lat: "", lon: "", loading: false, error: ""
                  };
   }
 
@@ -28,21 +28,32 @@ class Visualization extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    search(this.state.search).then(
-      (response) => {
-        this.state.location = response.results[0].formatted_address;
-        return fetchStation(response.results[0].geometry.location.lat, response.results[0].geometry.location.lng, parseInt(this.state.year))
+    this.setState({ error: "" })
+    if (this.state.location.length > 0 && this.state.year.length > 0) {
+      search(this.state.search).then(
+        (response) => {
+          if (response.status === "ZERO_RESULTS") {
+            return this.setState({ loading: false, error: "Please Try Something Else" })
+          }
+          this.state.location = response.results[0].formatted_address;
+          return fetchStation(response.results[0].geometry.location.lat, response.results[0].geometry.location.lng, parseInt(this.state.year))
+          }
+      ).then(
+        (results) => {
+          if (_.isEmpty(results))
+            return this.setState({ loading: false, error: "Please Try Something Else" })
+          return this.props.fetchAnnual(results.results[0].id, parseInt(this.state.year), this.state.location)
         }
-    ).then(
-      (results) => this.props.fetchAnnual(results.results[0].id, parseInt(this.state.year), this.state.location),
-      (err) => { this.setState({ loading: false }) }
-    ).then(
-      () => {
-        this.state.header_year = this.state.year;
-        this.setState({ loading: false, search: "", year: "" })
-      }
-    )
-    this.setState({ loading: true})
+      ).then(
+        () => {
+          this.state.header_year = this.state.year;
+          this.setState({ loading: false, search: "", year: "" })
+        }
+      )
+      this.setState({ loading: true})
+    } else {
+      this.setState({ error: "Please enter search fields" })
+    }
   }
 
   _update(field) {
@@ -79,6 +90,7 @@ class Visualization extends React.Component {
                 { this.state.loading && <div className="spinner"><Halogen.ClipLoader color={'#4DAF7C'} /></div> }
               </button>
             </form>
+            { (this.state.error.length > 0) && <div>{ this.state.error }</div> }
           </div>
 
           <div>
