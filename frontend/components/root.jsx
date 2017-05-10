@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { Router, Route, IndexRoute, hashHistory } from 'react-router';
 import App from './app.jsx';
-import VisualizationAnnual from './weather/visualization_annual.jsx';
+import Visualization from './weather/visualization.jsx';
 
 class Root extends React.Component {
   constructor(props) {
@@ -15,7 +15,7 @@ class Root extends React.Component {
       <Provider store={ this.props.store }>
         <Router history={ hashHistory }>
           <Route path="/" component={ App } >
-            <IndexRoute component={ VisualizationAnnual } />
+            <IndexRoute component={ Visualization } />
           </Route>
         </Router>
       </Provider>

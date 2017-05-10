@@ -31,7 +31,7 @@ export const plotBars = (_weather, barWrapper, angle, barScale, colorScale) => {
     .style("fill", (d) => { return colorScale((d.TMAX + d.TMIN) / 2.0); })
     .on("mouseover", (d) => {
        div.transition().duration(50).style("opacity", .9);
-       div.html(d3.timeFormat("%B %d, %Y")(d.date) + "<br/> " + d.TMIN + "°F - " + d.TMAX + "°F")
+       div.html(d3.timeFormat("%B %d, %Y")(d.date) + "<br/> " + d.TMIN + "°F  to  " + d.TMAX + "°F")
          .style("left", (d3.event.pageX) + "px")
          .style("top", (d3.event.pageY - 28) + "px");
        })
@@ -42,11 +42,11 @@ export const plotBars = (_weather, barWrapper, angle, barScale, colorScale) => {
        });
 };
 
-export const plotDates = (outerRadius, barWrapper) => {
+export const plotDates = (outerRadius, barWrapper, year) => {
   barWrapper.append("text")
   	.attr("class", "date")
   	.attr("x", 7)
   	.attr("y", -outerRadius * 1.1)
   	.attr("dy", "0.9em")
-  	.text("January");
+  	.text(`January ${year}`);
 };

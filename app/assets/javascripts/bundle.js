@@ -2914,13 +2914,23 @@ var search = exports.search = function search(location) {
 // Sample for Data request:
 // https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&startdate=2014-01-01&enddate=2015-01-01&stationid=GHCND:USW00014732&datatypeid=TMIN&units=standard&datatypeid=TMAX
 
-var fetchAnnual = exports.fetchAnnual = function fetchAnnual(stationId, startDate, endDate) {
-  // Date Format: YYYY-MM-DD
+var fetchAnnual = exports.fetchAnnual = function fetchAnnual(stationId, year) {
+  console.log("https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&startdate=" + year + "-01-01&enddate=" + (year + 1) + "-01-01&stationid=" + stationId + "&datatypeid=TMIN&datatypeid=TMAX&units=standard&limit=750");
   return $.ajax({
     method: "GET",
     headers: { "token": "wUdKaVEYoXeeSRvoAIOPADrHwuzTZzYw" },
-    url: "https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&startdate=" + startDate + "&enddate=" + endDate + "&stationid=" + stationId + "&datatypeid=TMIN&datatypeid=TMAX&units=standard&limit=750"
+    url: "https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&startdate=" + year + "-01-01&enddate=" + (year + 1) + "-01-01&stationid=" + stationId + "&datatypeid=TMIN&datatypeid=TMAX&units=standard&limit=750"
+  });
+};
 
+// https://www.ncdc.noaa.gov/cdo-web/api/v2/stations?datasetid=GHCND&extent=40.5204,-74.2047,41.0139,-73.5065&startdate=2014-01-01&enddate=2015-01-01&datatypeid=TMAX
+
+var fetchStation = exports.fetchStation = function fetchStation(lat, lon, year) {
+  console.log("https://www.ncdc.noaa.gov/cdo-web/api/v2/stations?datasetid=GHCND&extent=" + (lat - 1.0) + "," + (lon - 1.0) + "," + (lat + 1.0) + "," + (lon + 1.0) + "&startdate=" + year + "-01-01&enddate=" + (year + 1) + "-01-01&datatypeid=TMAX&sortfield=datacoverage&limit=5&sortorder=desc");
+  return $.ajax({
+    method: 'GET',
+    headers: { "token": "wUdKaVEYoXeeSRvoAIOPADrHwuzTZzYw" },
+    url: "https://www.ncdc.noaa.gov/cdo-web/api/v2/stations?datasetid=GHCND&extent=" + (lat - 1.0) + "," + (lon - 1.0) + "," + (lat + 1.0) + "," + (lon + 1.0) + "&startdate=" + year + "-01-01&enddate=" + (year + 1) + "-01-01&datatypeid=TMAX&sortfield=datacoverage&limit=5&sortorder=desc"
   });
 };
 
@@ -42531,7 +42541,7 @@ var RadialChart = function (_React$Component) {
 
       this.props.generateSpokes(barWrapper, innerRadius, outerRadius);
       this.props.plotBars(_weather, barWrapper, angle, barScale, colorScale);
-      this.props.plotDates(outerRadius, barWrapper);
+      this.props.plotDates(outerRadius, barWrapper, _weather[0].date.getYear() + 1900);
     }
   }, {
     key: 'render',
@@ -47743,9 +47753,9 @@ var _app = __webpack_require__(138);
 
 var _app2 = _interopRequireDefault(_app);
 
-var _visualization_annual = __webpack_require__(141);
+var _visualization = __webpack_require__(140);
 
-var _visualization_annual2 = _interopRequireDefault(_visualization_annual);
+var _visualization2 = _interopRequireDefault(_visualization);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -47776,7 +47786,7 @@ var Root = function (_React$Component) {
           _react2.default.createElement(
             _reactRouter.Route,
             { path: '/', component: _app2.default },
-            _react2.default.createElement(_reactRouter.IndexRoute, { component: _visualization_annual2.default })
+            _react2.default.createElement(_reactRouter.IndexRoute, { component: _visualization2.default })
           )
         )
       );
@@ -47929,19 +47939,18 @@ var plotBars = exports.plotBars = function plotBars(_weather, barWrapper, angle,
     return colorScale((d.TMAX + d.TMIN) / 2.0);
   }).on("mouseover", function (d) {
     div.transition().duration(50).style("opacity", .9);
-    div.html(d3.timeFormat("%B %d, %Y")(d.date) + "<br/> " + d.TMIN + "°F - " + d.TMAX + "°F").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
+    div.html(d3.timeFormat("%B %d, %Y")(d.date) + "<br/> " + d.TMIN + "°F  to  " + d.TMAX + "°F").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
   }).on("mouseout", function (d) {
     div.transition().duration(500).style("opacity", 0);
   });
 };
 
-var plotDates = exports.plotDates = function plotDates(outerRadius, barWrapper) {
-  barWrapper.append("text").attr("class", "date").attr("x", 7).attr("y", -outerRadius * 1.1).attr("dy", "0.9em").text("January");
+var plotDates = exports.plotDates = function plotDates(outerRadius, barWrapper, year) {
+  barWrapper.append("text").attr("class", "date").attr("x", 7).attr("y", -outerRadius * 1.1).attr("dy", "0.9em").text("January " + year);
 };
 
 /***/ }),
-/* 140 */,
-/* 141 */
+/* 140 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47977,9 +47986,19 @@ var _radial_chart = __webpack_require__(82);
 
 var _radial_chart2 = _interopRequireDefault(_radial_chart);
 
+var _halogen = __webpack_require__(326);
+
+var _halogen2 = _interopRequireDefault(_halogen);
+
+var _examples = __webpack_require__(338);
+
+var _examples2 = _interopRequireDefault(_examples);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -47987,43 +48006,62 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var VisualizationAnnual = function (_React$Component) {
-  _inherits(VisualizationAnnual, _React$Component);
+var Visualization = function (_React$Component) {
+  _inherits(Visualization, _React$Component);
 
-  function VisualizationAnnual(props) {
-    _classCallCheck(this, VisualizationAnnual);
+  function Visualization(props) {
+    _classCallCheck(this, Visualization);
 
-    // this.handleSubmit = this.handleSubmit.bind(this);
-    // this._update = this._update.bind(this);
-    var _this = _possibleConstructorReturn(this, (VisualizationAnnual.__proto__ || Object.getPrototypeOf(VisualizationAnnual)).call(this, props));
+    var _this = _possibleConstructorReturn(this, (Visualization.__proto__ || Object.getPrototypeOf(Visualization)).call(this, props));
 
-    _this.state = { search: "" };
+    _this.handleSubmit = _this.handleSubmit.bind(_this);
+    _this._update = _this._update.bind(_this);
+    _this.state = { search: "", year: "",
+      location: "New York City", header_year: "2014",
+      lat: "", lon: "", loading: false
+    };
     return _this;
   }
 
-  _createClass(VisualizationAnnual, [{
+  _createClass(Visualization, [{
     key: 'componentWillMount',
     value: function componentWillMount() {
       this.props.removeWeather();
-      this.props.fetchAnnual('GHCND:USW00014732', '2014-01-01', '2015-01-01');
+      this.props.fetchAnnual('GHCND:USW00014732', 2014);
     }
+  }, {
+    key: 'handleSubmit',
+    value: function handleSubmit(e) {
+      var _this2 = this;
 
-    // handleSubmit(e) {
-    //   e.preventDefault();
-    //   console.log("handling submit");
-    //   search(this.state.search).then(
-    //     (response) => this.props.fetch5Day(response.results[0].geometry.location.lat,
-    //                                        response.results[0].geometry.location.lng)
-    //   ).then(
-    //     () => this.setState({ search: "" })
-    //   );
-    // }
-    //
-    // _update(e) {
-    //   e.preventDefault();
-    //   this.setState({ search: e.target.value });
-    // }
+      e.preventDefault();
+      // debugger
+      (0, _weather_api_util.search)(this.state.search).then(function (response) {
+        _this2.state.location = response.results[0].formatted_address;
+        return (0, _weather_api_util.fetchStation)(response.results[0].geometry.location.lat, response.results[0].geometry.location.lng, parseInt(_this2.state.year));
+      }).then(function (results) {
+        // debugger
+        return _this2.props.fetchAnnual(results.results[0].id, parseInt(_this2.state.year));
+      }, function (err) {
+        // debugger
+        _this2.setState({ loading: false });
+      }).then(function () {
+        _this2.state.header_year = _this2.state.year;
+        _this2.setState({ loading: false, search: "", year: "" });
+      });
 
+      this.setState({ loading: true });
+    }
+  }, {
+    key: '_update',
+    value: function _update(field) {
+      var _this3 = this;
+
+      return function (e) {
+        e.preventDefault();
+        _this3.setState(_defineProperty({}, field, e.target.value));
+      };
+    }
   }, {
     key: 'render',
     value: function render() {
@@ -48031,9 +48069,10 @@ var VisualizationAnnual = function (_React$Component) {
         return _react2.default.createElement(
           'div',
           null,
-          'Loading Annual Weather......'
+          'Loading Weather Radials......'
         );
       }
+      // debugger
 
       return _react2.default.createElement(
         'div',
@@ -48047,7 +48086,7 @@ var VisualizationAnnual = function (_React$Component) {
             _react2.default.createElement(
               'h1',
               null,
-              'Weather Forecast Radials'
+              'Search Cities Worldwide'
             )
           ),
           _react2.default.createElement(
@@ -48057,15 +48096,29 @@ var VisualizationAnnual = function (_React$Component) {
               'form',
               { onSubmit: this.handleSubmit },
               _react2.default.createElement('input', { className: 'search-input',
-                placeholder: 'Search',
-                onChange: this._update,
+                placeholder: 'Search Location',
+                onChange: this._update('search'),
                 value: this.state.search }),
+              _react2.default.createElement('input', { className: 'search-input',
+                placeholder: 'Date (YYYY)',
+                onChange: this._update('year'),
+                value: this.state.year }),
               _react2.default.createElement(
                 'button',
                 { className: 'search-button' },
-                _react2.default.createElement('i', { className: 'fa fa-search' })
+                !this.state.loading && _react2.default.createElement('i', { className: 'fa fa-search' }),
+                this.state.loading && _react2.default.createElement(
+                  'div',
+                  { className: 'spinner' },
+                  _react2.default.createElement(_halogen2.default.ClipLoader, { color: '#4DAF7C' })
+                )
               )
             )
+          ),
+          _react2.default.createElement(
+            'div',
+            null,
+            _react2.default.createElement(_examples2.default, null)
           ),
           _react2.default.createElement(
             'div',
@@ -48076,10 +48129,14 @@ var VisualizationAnnual = function (_React$Component) {
               _react2.default.createElement(
                 'span',
                 null,
-                'Jay Puntham-Baker -',
                 _react2.default.createElement(
                   'a',
-                  { href: 'http://github.com/vdersar1/weather_lite' },
+                  { href: 'http://jaypb.io', target: '_blank' },
+                  'Jay Puntham-Baker - '
+                ),
+                _react2.default.createElement(
+                  'a',
+                  { href: 'http://github.com/vdersar1/weather_lite', target: '_blank' },
                   ' Github'
                 )
               )
@@ -48095,7 +48152,10 @@ var VisualizationAnnual = function (_React$Component) {
             _react2.default.createElement(
               'h1',
               { className: 'radial-header' },
-              'Annual Radial Weather Visualization for blah'
+              'Annual Radial Weather Visualization for ',
+              this.state.location,
+              ' in ',
+              this.props.weather[0].date.getYear() + 1900
             )
           ),
           _react2.default.createElement(_radial_chart2.default, { weather: this.props.weather })
@@ -48104,7 +48164,7 @@ var VisualizationAnnual = function (_React$Component) {
     }
   }]);
 
-  return VisualizationAnnual;
+  return Visualization;
 }(_react2.default.Component);
 
 var mapStateToProps = function mapStateToProps(state, ownProps) {
@@ -48124,9 +48184,10 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch, ownProps) {
   };
 };
 
-exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)((0, _reactRouter.withRouter)(VisualizationAnnual));
+exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)((0, _reactRouter.withRouter)(Visualization));
 
 /***/ }),
+/* 141 */,
 /* 142 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -65293,6 +65354,2584 @@ var getOffsetDate = function getOffsetDate(date) {
 
   return new_date;
 };
+
+/***/ }),
+/* 300 */,
+/* 301 */,
+/* 302 */,
+/* 303 */,
+/* 304 */,
+/* 305 */,
+/* 306 */,
+/* 307 */,
+/* 308 */,
+/* 309 */,
+/* 310 */,
+/* 311 */,
+/* 312 */,
+/* 313 */,
+/* 314 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var getVendorPropertyName = __webpack_require__(318);
+
+module.exports = function(target, sources) {
+  var to = Object(target);
+  var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+  for (var nextIndex = 1; nextIndex < arguments.length; nextIndex++) {
+    var nextSource = arguments[nextIndex];
+    if (nextSource == null) {
+      continue;
+    }
+
+    var from = Object(nextSource);
+
+    for (var key in from) {
+      if (hasOwnProperty.call(from, key)) {
+        to[key] = from[key];
+      }
+    }
+  }
+
+  var prefixed = {};
+  for (var key in to) {
+    prefixed[getVendorPropertyName(key)] = to[key]
+  }
+
+  return prefixed
+}
+
+
+/***/ }),
+/* 315 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var insertRule = __webpack_require__(319);
+var vendorPrefix = __webpack_require__(317)();
+var index = 0;
+
+module.exports = function(keyframes) {
+  // random name
+  var name = 'anim_' + (++index) + (+new Date);
+  var css = "@" + vendorPrefix + "keyframes " + name + " {";
+
+  for (var key in keyframes) {
+    css += key + " {";
+
+    for (var property in keyframes[key]) {
+      var part = ":" + keyframes[key][property] + ";";
+      // We do vendor prefix for every property
+      css += vendorPrefix + property + part;
+      css += property + part;
+    }
+
+    css += "}";
+  }
+
+  css += "}";
+
+  insertRule(css);
+
+  return name
+}
+
+
+/***/ }),
+/* 316 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = document.createElement('div').style;
+
+
+/***/ }),
+/* 317 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var cssVendorPrefix;
+
+module.exports = function() {
+
+  if (cssVendorPrefix) return cssVendorPrefix;
+
+  var styles = window.getComputedStyle(document.documentElement, '');
+  var pre = (Array.prototype.slice.call(styles).join('').match(/-(moz|webkit|ms)-/) || (styles.OLink === '' && ['', 'o']))[1];
+
+  return cssVendorPrefix = '-' + pre + '-';
+}
+
+
+/***/ }),
+/* 318 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var builtinStyle = __webpack_require__(316);
+var prefixes = ['Moz', 'Webkit', 'O', 'ms'];
+var domVendorPrefix;
+
+// Helper function to get the proper vendor property name. (transition => WebkitTransition)
+module.exports = function(prop, isSupportTest) {
+
+  var vendorProp;
+  if (prop in builtinStyle) return prop;
+
+  var UpperProp = prop.charAt(0).toUpperCase() + prop.substr(1);
+
+  if (domVendorPrefix) {
+
+    vendorProp = domVendorPrefix + UpperProp;
+    if (vendorProp in builtinStyle) {
+      return vendorProp;
+    }
+  } else {
+
+    for (var i = 0; i < prefixes.length; ++i) {
+      vendorProp = prefixes[i] + UpperProp;
+      if (vendorProp in builtinStyle) {
+        domVendorPrefix = prefixes[i];
+        return vendorProp;
+      }
+    }
+  }
+
+  // if support test, not fallback to origin prop name
+  if (!isSupportTest) {
+    return prop;
+  }
+
+}
+
+
+/***/ }),
+/* 319 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var extraSheet;
+
+module.exports = function(css) {
+
+  if (!extraSheet) {
+    // First time, create an extra stylesheet for adding rules
+    extraSheet = document.createElement('style');
+    document.getElementsByTagName('head')[0].appendChild(extraSheet);
+    // Keep reference to actual StyleSheet object (`styleSheet` for IE < 9)
+    extraSheet = extraSheet.sheet || extraSheet.styleSheet;
+  }
+
+  var index = (extraSheet.cssRules || extraSheet.rules).length;
+  extraSheet.insertRule(css, index);
+
+  return extraSheet;
+}
+
+
+/***/ }),
+/* 320 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(7);
+var assign = __webpack_require__(314);
+var insertKeyframesRule = __webpack_require__(315);
+
+/**
+ * @type {Object}
+ */
+var keyframes = {
+    '50%': {
+        transform: 'scale(0.75)',
+        opacity: 0.2
+    },
+    '100%': {
+        transform: 'scale(1)',
+        opacity: 1
+    }
+};
+
+var animationName = insertKeyframesRule(keyframes);
+
+var Loader = React.createClass({
+    displayName: 'Loader',
+
+    /**
+     * @type {Object}
+     */
+    propTypes: {
+        loading: React.PropTypes.bool,
+        color: React.PropTypes.string,
+        size: React.PropTypes.string,
+        margin: React.PropTypes.string
+    },
+
+    /**
+     * @return {Object}
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            loading: true,
+            color: '#ffffff',
+            size: '15px',
+            margin: '2px'
+        };
+    },
+
+    /**
+     * @return {Object}
+     */
+    getBallStyle: function getBallStyle() {
+        return {
+            backgroundColor: this.props.color,
+            width: this.props.size,
+            height: this.props.size,
+            margin: this.props.margin,
+            borderRadius: '100%',
+            verticalAlign: this.props.verticalAlign
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getAnimationStyle: function getAnimationStyle(i) {
+        var animation = [animationName, '0.7s', i % 2 ? '0s' : '0.35s', 'infinite', 'linear'].join(' ');
+        var animationFillMode = 'both';
+
+        return {
+            animation: animation,
+            animationFillMode: animationFillMode
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getStyle: function getStyle(i) {
+        return assign(this.getBallStyle(i), this.getAnimationStyle(i), {
+            display: 'inline-block'
+        });
+    },
+
+    /**
+     * @param  {Boolean} loading
+     * @return {ReactComponent || null}
+     */
+    renderLoader: function renderLoader(loading) {
+        if (loading) {
+            return React.createElement(
+                'div',
+                { id: this.props.id, className: this.props.className },
+                React.createElement('div', { style: this.getStyle(1) }),
+                React.createElement('div', { style: this.getStyle(2) }),
+                React.createElement('div', { style: this.getStyle(3) })
+            );
+        }
+
+        return null;
+    },
+
+    render: function render() {
+        return this.renderLoader(this.props.loading);
+    }
+});
+
+module.exports = Loader;
+
+/***/ }),
+/* 321 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(7);
+var assign = __webpack_require__(314);
+var insertKeyframesRule = __webpack_require__(315);
+
+/**
+ * @type {Object}
+ */
+var keyframes = {
+    '0%, 100%': {
+        transform: 'scale(0)'
+    },
+    '50%': {
+        transform: 'scale(1.0)'
+    }
+};
+
+/**
+ * @type {String}
+ */
+var animationName = insertKeyframesRule(keyframes);
+
+var Loader = React.createClass({
+    displayName: 'Loader',
+
+    /**
+     * @type {Object}
+     */
+    propTypes: {
+        loading: React.PropTypes.bool,
+        color: React.PropTypes.string,
+        size: React.PropTypes.string
+    },
+
+    /**
+     * @return {Object}
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            loading: true,
+            color: '#ffffff',
+            size: '60px'
+        };
+    },
+
+    /**
+     * @return {Object}
+     */
+    getBallStyle: function getBallStyle() {
+        return {
+            backgroundColor: this.props.color,
+            width: this.props.size,
+            height: this.props.size,
+            borderRadius: '100%',
+            opacity: 0.6,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            verticalAlign: this.props.verticalAlign
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getAnimationStyle: function getAnimationStyle(i) {
+        var animation = [animationName, '2s', i == 1 ? '1s' : '0s', 'infinite', 'ease-in-out'].join(' ');
+        var animationFillMode = 'both';
+
+        return {
+            animation: animation,
+            animationFillMode: animationFillMode
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getStyle: function getStyle(i) {
+        if (i) {
+            return assign(this.getBallStyle(i), this.getAnimationStyle(i));
+        }
+
+        return assign({
+            width: this.props.size,
+            height: this.props.size,
+            position: 'relative'
+        });
+    },
+
+    /**
+     * @param  {Boolean} loading
+     * @return {ReactComponent || null}
+     */
+    renderLoader: function renderLoader(loading) {
+        if (loading) {
+            return React.createElement(
+                'div',
+                { id: this.props.id, className: this.props.className },
+                React.createElement(
+                    'div',
+                    { style: this.getStyle() },
+                    React.createElement('div', { style: this.getStyle(1) }),
+                    React.createElement('div', { style: this.getStyle(2) })
+                )
+            );
+        }
+
+        return null;
+    },
+
+    render: function render() {
+        return this.renderLoader(this.props.loading);
+    }
+});
+
+module.exports = Loader;
+
+/***/ }),
+/* 322 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(7);
+var assign = __webpack_require__(314);
+var insertKeyframesRule = __webpack_require__(315);
+
+/**
+ * @type {Object}
+ */
+var keyframes = {
+    '0%': {
+        transform: 'rotate(0deg) scale(1)'
+    },
+    '50%': {
+        transform: 'rotate(180deg) scale(0.8)'
+    },
+    '100%': {
+        transform: 'rotate(360deg) scale(1)'
+    }
+};
+
+/**
+ * @type {String}
+ */
+var animationName = insertKeyframesRule(keyframes);
+
+var Loader = React.createClass({
+    displayName: 'Loader',
+
+    /**
+     * @type {Object}
+     */
+    propTypes: {
+        loading: React.PropTypes.bool,
+        color: React.PropTypes.string,
+        size: React.PropTypes.string
+    },
+
+    /**
+     * @return {Object}
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            loading: true,
+            color: '#ffffff',
+            size: '35px'
+        };
+    },
+
+    /**
+     * @return {Object}
+     */
+    getBallStyle: function getBallStyle() {
+        return {
+            width: this.props.size,
+            height: this.props.size,
+            border: '2px solid',
+            borderColor: this.props.color,
+            borderBottomColor: 'transparent',
+            borderRadius: '100%',
+            background: 'transparent !important',
+            verticalAlign: this.props.verticalAlign
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getAnimationStyle: function getAnimationStyle(i) {
+        var animation = [animationName, '0.75s', '0s', 'infinite', 'linear'].join(' ');
+        var animationFillMode = 'both';
+
+        return {
+            animation: animation,
+            animationFillMode: animationFillMode
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getStyle: function getStyle(i) {
+        return assign(this.getBallStyle(i), this.getAnimationStyle(i), {
+            display: 'inline-block'
+        });
+    },
+
+    /**
+     * @param  {Boolean} loading
+     * @return {ReactComponent || null}
+     */
+    renderLoader: function renderLoader(loading) {
+        if (loading) {
+            return React.createElement(
+                'div',
+                { id: this.props.id, className: this.props.className },
+                React.createElement('div', { style: this.getStyle() })
+            );
+        }
+
+        return null;
+    },
+
+    render: function render() {
+        return this.renderLoader(this.props.loading);
+    }
+});
+
+module.exports = Loader;
+
+/***/ }),
+/* 323 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(7);
+var assign = __webpack_require__(314);
+var insertKeyframesRule = __webpack_require__(315);
+
+/**
+ * @type {Object}
+ */
+var rotateKeyframes = {
+    '100%': {
+        transform: 'rotate(360deg)'
+    }
+};
+
+/**
+ * @type {Object}
+ */
+var bounceKeyframes = {
+    '0%, 100%': {
+        transform: 'scale(0)'
+    },
+    '50%': {
+        transform: 'scale(1.0)'
+    }
+};
+
+/**
+ * @type {String}
+ */
+var rotateAnimationName = insertKeyframesRule(rotateKeyframes);
+
+/**
+ * @type {String}
+ */
+var bounceAnimationName = insertKeyframesRule(bounceKeyframes);
+
+var Loader = React.createClass({
+    displayName: 'Loader',
+
+    /**
+     * @type {Object}
+     */
+    propTypes: {
+        loading: React.PropTypes.bool,
+        color: React.PropTypes.string,
+        size: React.PropTypes.string,
+        margin: React.PropTypes.string
+    },
+
+    /**
+     * @return {Object}
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            loading: true,
+            color: '#ffffff',
+            size: '60px'
+        };
+    },
+
+    /**
+     * @param  {String} size
+     * @return {Object}
+     */
+    getBallStyle: function getBallStyle(size) {
+        return {
+            backgroundColor: this.props.color,
+            width: size,
+            height: size,
+            borderRadius: '100%',
+            verticalAlign: this.props.verticalAlign
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getAnimationStyle: function getAnimationStyle(i) {
+        var animation = [i == 0 ? rotateAnimationName : bounceAnimationName, '2s', i == 2 ? '-1s' : '0s', 'infinite', 'linear'].join(' ');
+        var animationFillMode = 'forwards';
+
+        return {
+            animation: animation,
+            animationFillMode: animationFillMode
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getStyle: function getStyle(i) {
+        var size = parseInt(this.props.size);
+        var ballSize = size / 2;
+
+        if (i) {
+            return assign(this.getBallStyle(ballSize), this.getAnimationStyle(i), {
+                position: 'absolute',
+                top: i % 2 ? 0 : 'auto',
+                bottom: i % 2 ? 'auto' : 0
+            });
+        }
+
+        return assign(this.getAnimationStyle(i), {
+            width: size,
+            height: size,
+            position: 'relative'
+        });
+    },
+
+    /**
+     * @param  {Boolean} loading
+     * @return {ReactComponent || null}
+     */
+    renderLoader: function renderLoader(loading) {
+        if (loading) {
+            return React.createElement(
+                'div',
+                { id: this.props.id, className: this.props.className },
+                React.createElement(
+                    'div',
+                    { style: this.getStyle(0) },
+                    React.createElement('div', { style: this.getStyle(1) }),
+                    React.createElement('div', { style: this.getStyle(2) })
+                )
+            );
+        }
+
+        return null;
+    },
+
+    render: function render() {
+        return this.renderLoader(this.props.loading);
+    }
+});
+
+module.exports = Loader;
+
+/***/ }),
+/* 324 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(7);
+var assign = __webpack_require__(314);
+var insertKeyframesRule = __webpack_require__(315);
+
+/**
+ * @type {Object}
+ */
+var keyframes = {
+    '50%': {
+        opacity: 0.3
+    },
+    '100%': {
+        opacity: 1
+    }
+};
+
+/**
+ * @type {String}
+ */
+var animationName = insertKeyframesRule(keyframes);
+
+var Loader = React.createClass({
+    displayName: 'Loader',
+
+    /**
+     * @type {Object}
+     */
+    propTypes: {
+        loading: React.PropTypes.bool,
+        color: React.PropTypes.string,
+        height: React.PropTypes.string,
+        width: React.PropTypes.string,
+        margin: React.PropTypes.string,
+        radius: React.PropTypes.string
+    },
+
+    /**
+     * @return {Object}
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            loading: true,
+            color: '#ffffff',
+            height: '15px',
+            width: '5px',
+            margin: '2px',
+            radius: '2px'
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getLineStyle: function getLineStyle(i) {
+        return {
+            backgroundColor: this.props.color,
+            height: this.props.height,
+            width: this.props.width,
+            margin: this.props.margin,
+            borderRadius: this.props.radius,
+            verticalAlign: this.props.verticalAlign
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getAnimationStyle: function getAnimationStyle(i) {
+        var animation = [animationName, '1.2s', i * 0.12 + 's', 'infinite', 'ease-in-out'].join(' ');
+        var animationFillMode = 'both';
+
+        return {
+            animation: animation,
+            animationFillMode: animationFillMode
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getPosStyle: function getPosStyle(i) {
+        var radius = '20';
+        var quarter = radius / 2 + radius / 5.5;
+
+        var lines = {
+            l1: {
+                top: radius,
+                left: 0
+            },
+            l2: {
+                top: quarter,
+                left: quarter,
+                transform: 'rotate(-45deg)'
+            },
+            l3: {
+                top: 0,
+                left: radius,
+                transform: 'rotate(90deg)'
+            },
+            l4: {
+                top: -quarter,
+                left: quarter,
+                transform: 'rotate(45deg)'
+            },
+            l5: {
+                top: -radius,
+                left: 0
+            },
+            l6: {
+                top: -quarter,
+                left: -quarter,
+                transform: 'rotate(-45deg)'
+            },
+            l7: {
+                top: 0,
+                left: -radius,
+                transform: 'rotate(90deg)'
+            },
+            l8: {
+                top: quarter,
+                left: -quarter,
+                transform: 'rotate(45deg)'
+            }
+        };
+
+        return lines['l' + i];
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getStyle: function getStyle(i) {
+        return assign(this.getLineStyle(i), this.getPosStyle(i), this.getAnimationStyle(i), {
+            position: 'absolute'
+        });
+    },
+
+    /**
+     * @param  {Boolean} loading
+     * @return {ReactComponent || null}
+     */
+    renderLoader: function renderLoader(loading) {
+        if (loading) {
+            var style = {
+                position: 'relative',
+                fontSize: 0
+            };
+
+            return React.createElement(
+                'div',
+                { id: this.props.id, className: this.props.className },
+                React.createElement(
+                    'div',
+                    { style: style },
+                    React.createElement('div', { style: this.getStyle(1) }),
+                    React.createElement('div', { style: this.getStyle(2) }),
+                    React.createElement('div', { style: this.getStyle(3) }),
+                    React.createElement('div', { style: this.getStyle(4) }),
+                    React.createElement('div', { style: this.getStyle(5) }),
+                    React.createElement('div', { style: this.getStyle(6) }),
+                    React.createElement('div', { style: this.getStyle(7) }),
+                    React.createElement('div', { style: this.getStyle(8) })
+                )
+            );
+        }
+
+        return null;
+    },
+
+    render: function render() {
+        return this.renderLoader(this.props.loading);
+    }
+});
+
+module.exports = Loader;
+
+/***/ }),
+/* 325 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(7);
+var assign = __webpack_require__(314);
+var insertKeyframesRule = __webpack_require__(315);
+
+/**
+ * @type {Object}
+ */
+var keyframes = {
+    '0%': {
+        transform: 'scale(1)'
+    },
+    '50%': {
+        transform: 'scale(0.5)',
+        opacity: 0.7
+    },
+    '100%': {
+        transform: 'scale(1)',
+        opacity: 1
+    }
+};
+
+/**
+ * @type {String}
+ */
+var animationName = insertKeyframesRule(keyframes);
+
+/**
+ * @param  {Number} top
+ * @return {Number}
+ */
+function random(top) {
+    return Math.random() * top;
+}
+
+var Loader = React.createClass({
+    displayName: 'Loader',
+
+    /**
+     * @type {Object}
+     */
+    propTypes: {
+        loading: React.PropTypes.bool,
+        color: React.PropTypes.string,
+        size: React.PropTypes.string,
+        margin: React.PropTypes.string
+    },
+
+    /**
+     * @return {Object}
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            loading: true,
+            color: '#ffffff',
+            size: '15px',
+            margin: '2px'
+        };
+    },
+
+    /**
+     * @return {Object}
+     */
+    getBallStyle: function getBallStyle() {
+        return {
+            backgroundColor: this.props.color,
+            width: this.props.size,
+            height: this.props.size,
+            margin: this.props.margin,
+            borderRadius: '100%',
+            verticalAlign: this.props.verticalAlign
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getAnimationStyle: function getAnimationStyle(i) {
+        var animationDuration = random(100) / 100 + 0.6 + 's';
+        var animationDelay = random(100) / 100 - 0.2 + 's';
+
+        var animation = [animationName, animationDuration, animationDelay, 'infinite', 'ease'].join(' ');
+        var animationFillMode = 'both';
+
+        return {
+            animation: animation,
+            animationFillMode: animationFillMode
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getStyle: function getStyle(i) {
+        return assign(this.getBallStyle(i), this.getAnimationStyle(i), {
+            display: 'inline-block'
+        });
+    },
+
+    /**
+     * @param  {Boolean} loading
+     * @return {ReactComponent || null}
+     */
+    renderLoader: function renderLoader(loading) {
+        if (loading) {
+            var style = {
+                width: parseFloat(this.props.size) * 3 + parseFloat(this.props.margin) * 6,
+                fontSize: 0
+            };
+
+            return React.createElement(
+                'div',
+                { id: this.props.id, className: this.props.className },
+                React.createElement(
+                    'div',
+                    { style: style },
+                    React.createElement('div', { style: this.getStyle(1) }),
+                    React.createElement('div', { style: this.getStyle(2) }),
+                    React.createElement('div', { style: this.getStyle(3) }),
+                    React.createElement('div', { style: this.getStyle(4) }),
+                    React.createElement('div', { style: this.getStyle(5) }),
+                    React.createElement('div', { style: this.getStyle(6) }),
+                    React.createElement('div', { style: this.getStyle(7) }),
+                    React.createElement('div', { style: this.getStyle(8) }),
+                    React.createElement('div', { style: this.getStyle(9) })
+                )
+            );
+        }
+
+        return null;
+    },
+
+    render: function render() {
+        return this.renderLoader(this.props.loading);
+    }
+});
+
+module.exports = Loader;
+
+/***/ }),
+/* 326 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = {
+    PulseLoader: __webpack_require__(329),
+    RotateLoader: __webpack_require__(332),
+    BeatLoader: __webpack_require__(320),
+    RiseLoader: __webpack_require__(331),
+    SyncLoader: __webpack_require__(336),
+    GridLoader: __webpack_require__(325),
+    ClipLoader: __webpack_require__(322),
+    SquareLoader: __webpack_require__(335),
+    DotLoader: __webpack_require__(323),
+    PacmanLoader: __webpack_require__(328),
+    MoonLoader: __webpack_require__(327),
+    RingLoader: __webpack_require__(330),
+    BounceLoader: __webpack_require__(321),
+    SkewLoader: __webpack_require__(334),
+    FadeLoader: __webpack_require__(324),
+    ScaleLoader: __webpack_require__(333)
+};
+
+/***/ }),
+/* 327 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(7);
+var assign = __webpack_require__(314);
+var insertKeyframesRule = __webpack_require__(315);
+
+/**
+ * @type {Object}
+ */
+var keyframes = {
+    '100%': {
+        transform: 'rotate(360deg)'
+    }
+};
+
+/**
+ * @type {String}
+ */
+var animationName = insertKeyframesRule(keyframes);
+
+var Loader = React.createClass({
+    displayName: 'Loader',
+
+    /**
+     * @type {Object}
+     */
+    propTypes: {
+        loading: React.PropTypes.bool,
+        color: React.PropTypes.string,
+        size: React.PropTypes.string,
+        margin: React.PropTypes.string
+    },
+
+    /**
+     * @return {Object}
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            loading: true,
+            color: '#ffffff',
+            size: '60px'
+        };
+    },
+
+    /**
+     * @param  {String} size
+     * @return {Object}
+     */
+    getBallStyle: function getBallStyle(size) {
+        return {
+            width: size,
+            height: size,
+            borderRadius: '100%',
+            verticalAlign: this.props.verticalAlign
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getAnimationStyle: function getAnimationStyle(i) {
+        var animation = [animationName, '0.6s', '0s', 'infinite', 'linear'].join(' ');
+        var animationFillMode = 'forwards';
+
+        return {
+            animation: animation,
+            animationFillMode: animationFillMode
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getStyle: function getStyle(i) {
+        var size = parseInt(this.props.size);
+        var moonSize = size / 7;
+
+        if (i == 1) {
+            return assign(this.getBallStyle(moonSize), this.getAnimationStyle(i), {
+                backgroundColor: this.props.color,
+                opacity: '0.8',
+                position: 'absolute',
+                top: size / 2 - moonSize / 2
+            });
+        } else if (i == 2) {
+            return assign(this.getBallStyle(size), {
+                border: moonSize + 'px solid ' + this.props.color,
+                opacity: 0.1
+            });
+        } else {
+            return assign(this.getAnimationStyle(i), {
+                position: 'relative'
+            });
+        }
+    },
+
+    /**
+     * @param  {Boolean} loading
+     * @return {ReactComponent || null}
+     */
+    renderLoader: function renderLoader(loading) {
+        if (loading) {
+            return React.createElement(
+                'div',
+                { id: this.props.id, className: this.props.className },
+                React.createElement(
+                    'div',
+                    { style: this.getStyle(0) },
+                    React.createElement('div', { style: this.getStyle(1) }),
+                    React.createElement('div', { style: this.getStyle(2) })
+                )
+            );
+        }
+
+        return null;
+    },
+
+    render: function render() {
+        return this.renderLoader(this.props.loading);
+    }
+});
+
+module.exports = Loader;
+
+/***/ }),
+/* 328 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(7);
+var assign = __webpack_require__(314);
+var insertKeyframesRule = __webpack_require__(315);
+
+/**
+ * @type {Object}
+ */
+var animations = {};
+
+var Loader = React.createClass({
+    displayName: 'Loader',
+
+    /**
+     * @type {Object}
+     */
+    propTypes: {
+        loading: React.PropTypes.bool,
+        color: React.PropTypes.string,
+        size: React.PropTypes.number,
+        margin: React.PropTypes.number
+    },
+
+    /**
+     * @return {Object}
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            loading: true,
+            color: '#ffffff',
+            size: 25,
+            margin: 2
+        };
+    },
+
+    /**
+     * @return {Object}
+     */
+    getBallStyle: function getBallStyle() {
+        return {
+            backgroundColor: this.props.color,
+            width: this.props.size,
+            height: this.props.size,
+            margin: this.props.margin,
+            borderRadius: '100%',
+            verticalAlign: this.props.verticalAlign
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getAnimationStyle: function getAnimationStyle(i) {
+        var size = this.props.size;
+        var animationName = animations[size];
+
+        if (!animationName) {
+            var keyframes = {
+                '75%': {
+                    opacity: 0.7
+                },
+                '100%': {
+                    transform: 'translate(' + -4 * size + 'px,' + -size / 4 + 'px)'
+                }
+            };
+            animationName = animations[size] = insertKeyframesRule(keyframes);
+        }
+
+        var animation = [animationName, '1s', i * 0.25 + 's', 'infinite', 'linear'].join(' ');
+        var animationFillMode = 'both';
+
+        return {
+            animation: animation,
+            animationFillMode: animationFillMode
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getStyle: function getStyle(i) {
+        if (i == 1) {
+            var s1 = this.props.size + 'px solid transparent';
+            var s2 = this.props.size + 'px solid ' + this.props.color;
+
+            return {
+                width: 0,
+                height: 0,
+                borderRight: s1,
+                borderTop: s2,
+                borderLeft: s2,
+                borderBottom: s2,
+                borderRadius: this.props.size
+            };
+        }
+
+        return assign(this.getBallStyle(i), this.getAnimationStyle(i), {
+            width: 10,
+            height: 10,
+            transform: 'translate(0, ' + -this.props.size / 4 + 'px)',
+            position: 'absolute',
+            top: 25,
+            left: 100
+        });
+    },
+
+    /**
+     * @param  {Boolean} loading
+     * @return {ReactComponent || null}
+     */
+    renderLoader: function renderLoader(loading) {
+        if (loading) {
+            var style = {
+                position: 'relative',
+                fontSize: 0
+            };
+
+            return React.createElement(
+                'div',
+                { id: this.props.id, className: this.props.className },
+                React.createElement(
+                    'div',
+                    { style: style },
+                    React.createElement('div', { style: this.getStyle(1) }),
+                    React.createElement('div', { style: this.getStyle(2) }),
+                    React.createElement('div', { style: this.getStyle(3) }),
+                    React.createElement('div', { style: this.getStyle(4) }),
+                    React.createElement('div', { style: this.getStyle(5) })
+                )
+            );
+        }
+
+        return null;
+    },
+
+    render: function render() {
+        return this.renderLoader(this.props.loading);
+    }
+});
+
+module.exports = Loader;
+
+/***/ }),
+/* 329 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(7);
+var assign = __webpack_require__(314);
+var insertKeyframesRule = __webpack_require__(315);
+
+/**
+ * @type {Object}
+ */
+var keyframes = {
+    '0%': {
+        transform: 'scale(1)',
+        opacity: 1
+    },
+    '45%': {
+        transform: 'scale(0.1)',
+        opacity: 0.7
+    },
+    '80%': {
+        transform: 'scale(1)',
+        opacity: 1
+    }
+};
+
+/**
+ * @type {String}
+ */
+var animationName = insertKeyframesRule(keyframes);
+
+var Loader = React.createClass({
+    displayName: 'Loader',
+
+    /**
+     * @type {Object}
+     */
+    propTypes: {
+        loading: React.PropTypes.bool,
+        color: React.PropTypes.string,
+        size: React.PropTypes.string,
+        margin: React.PropTypes.string
+    },
+
+    /**
+     * @return {Object}
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            loading: true,
+            color: '#ffffff',
+            size: '15px',
+            margin: '2px'
+        };
+    },
+
+    /**
+     * @return {Object}
+     */
+    getBallStyle: function getBallStyle() {
+        return {
+            backgroundColor: this.props.color,
+            width: this.props.size,
+            height: this.props.size,
+            margin: this.props.margin,
+            borderRadius: '100%',
+            verticalAlign: this.props.verticalAlign
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getAnimationStyle: function getAnimationStyle(i) {
+        var animation = [animationName, '0.75s', i * 0.12 + 's', 'infinite', 'cubic-bezier(.2,.68,.18,1.08)'].join(' ');
+        var animationFillMode = 'both';
+
+        return {
+            animation: animation,
+            animationFillMode: animationFillMode
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getStyle: function getStyle(i) {
+        return assign(this.getBallStyle(i), this.getAnimationStyle(i), {
+            display: 'inline-block'
+        });
+    },
+
+    /**
+     * @param  {Boolean} loading
+     * @return {ReactComponent || null}
+     */
+    renderLoader: function renderLoader(loading) {
+        if (loading) {
+            return React.createElement(
+                'div',
+                { id: this.props.id, className: this.props.className },
+                React.createElement('div', { style: this.getStyle(1) }),
+                React.createElement('div', { style: this.getStyle(2) }),
+                React.createElement('div', { style: this.getStyle(3) })
+            );
+        }
+
+        return null;
+    },
+
+    render: function render() {
+        return this.renderLoader(this.props.loading);
+    }
+});
+
+module.exports = Loader;
+
+/***/ }),
+/* 330 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(7);
+var assign = __webpack_require__(314);
+var insertKeyframesRule = __webpack_require__(315);
+
+/**
+ * @type {Object}
+ */
+var rightRotateKeyframes = {
+    '0%': {
+        transform: 'rotateX(0deg) rotateY(0deg) rotateZ(0deg)'
+
+    },
+    '100%': {
+        transform: 'rotateX(180deg) rotateY(360deg) rotateZ(360deg)'
+    }
+};
+
+/**
+ * @type {Object}
+ */
+var leftRotateKeyframes = {
+    '0%': {
+        transform: 'rotateX(0deg) rotateY(0deg) rotateZ(0deg)'
+    },
+    '100%': {
+        transform: 'rotateX(360deg) rotateY(180deg) rotateZ(360deg)'
+    }
+};
+
+/**
+ * @type {String}
+ */
+var rightRotateAnimationName = insertKeyframesRule(rightRotateKeyframes);
+
+/**
+ * @type {String}
+ */
+var leftRotateAnimationName = insertKeyframesRule(leftRotateKeyframes);
+
+var Loader = React.createClass({
+    displayName: 'Loader',
+
+    /**
+     * @type {Object}
+     */
+    propTypes: {
+        loading: React.PropTypes.bool,
+        color: React.PropTypes.string,
+        size: React.PropTypes.string,
+        margin: React.PropTypes.string
+    },
+
+    /**
+     * @return {Object}
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            loading: true,
+            color: '#ffffff',
+            size: '60px'
+        };
+    },
+
+    /**
+     * @param {String} size
+     * @return {Object}
+     */
+    getCircleStyle: function getCircleStyle(size) {
+        return {
+            width: size,
+            height: size,
+            border: size / 10 + 'px solid ' + this.props.color,
+            opacity: 0.4,
+            borderRadius: '100%',
+            verticalAlign: this.props.verticalAlign
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getAnimationStyle: function getAnimationStyle(i) {
+        var animation = [i == 1 ? rightRotateAnimationName : leftRotateAnimationName, '2s', '0s', 'infinite', 'linear'].join(' ');
+        var animationFillMode = 'forwards';
+        var perspective = '800px';
+
+        return {
+            perspective: perspective,
+            animation: animation,
+            animationFillMode: animationFillMode
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getStyle: function getStyle(i) {
+        var size = parseInt(this.props.size);
+
+        if (i) {
+            return assign(this.getCircleStyle(size), this.getAnimationStyle(i), {
+                position: 'absolute',
+                top: 0,
+                left: 0
+            });
+        }
+
+        return {
+            width: size,
+            height: size,
+            position: 'relative'
+        };
+    },
+
+    /**
+     * @param  {Boolean} loading
+     * @return {ReactComponent || null}
+     */
+    renderLoader: function renderLoader(loading) {
+        if (loading) {
+            return React.createElement(
+                'div',
+                { id: this.props.id, className: this.props.className },
+                React.createElement(
+                    'div',
+                    { style: this.getStyle(0) },
+                    React.createElement('div', { style: this.getStyle(1) }),
+                    React.createElement('div', { style: this.getStyle(2) })
+                )
+            );
+        }
+
+        return null;
+    },
+
+    render: function render() {
+        return this.renderLoader(this.props.loading);
+    }
+});
+
+module.exports = Loader;
+
+/***/ }),
+/* 331 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(7);
+var assign = __webpack_require__(314);
+var insertKeyframesRule = __webpack_require__(315);
+
+/**
+ * @type {Number}
+ */
+var riseAmount = 30;
+
+/**
+ * @type {Object}
+ */
+var keyframesEven = {
+    '0%': {
+        transform: 'scale(1.1)'
+    },
+    '25': {
+        transform: 'translateY(-' + riseAmount + 'px)'
+    },
+    '50%': {
+        transform: 'scale(0.4)'
+    },
+    '75%': {
+        transform: 'translateY(' + riseAmount + 'px)'
+    },
+    '100%': {
+        transform: 'translateY(0) scale(1.0)'
+    }
+};
+
+/**
+ * @type {Object}
+ */
+var keyframesOdd = {
+    '0%': {
+        transform: 'scale(0.4)'
+    },
+    '25': {
+        transform: 'translateY(' + riseAmount + 'px)'
+    },
+    '50%': {
+        transform: 'scale(1.1)'
+    },
+    '75%': {
+        transform: 'translateY(-' + riseAmount + 'px)'
+    },
+    '100%': {
+        transform: 'translateY(0) scale(0.75)'
+    }
+};
+
+/**
+ * @type {String}
+ */
+var animationNameEven = insertKeyframesRule(keyframesEven);
+
+/**
+ * @type {String}
+ */
+var animationNameOdd = insertKeyframesRule(keyframesOdd);
+
+var Loader = React.createClass({
+    displayName: 'Loader',
+
+    /**
+     * @type {Object}
+     */
+    propTypes: {
+        loading: React.PropTypes.bool,
+        color: React.PropTypes.string,
+        size: React.PropTypes.string,
+        margin: React.PropTypes.string
+    },
+
+    /**
+     * @return {Object}
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            loading: true,
+            color: '#ffffff',
+            size: '15px',
+            margin: '2px'
+        };
+    },
+
+    /**
+     * @return {Object}
+     */
+    getBallStyle: function getBallStyle() {
+        return {
+            backgroundColor: this.props.color,
+            width: this.props.size,
+            height: this.props.size,
+            margin: this.props.margin,
+            borderRadius: '100%',
+            verticalAlign: this.props.verticalAlign
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getAnimationStyle: function getAnimationStyle(i) {
+        var animation = [i % 2 == 0 ? animationNameEven : animationNameOdd, '1s', '0s', 'infinite', 'cubic-bezier(.15,.46,.9,.6)'].join(' ');
+        var animationFillMode = 'both';
+
+        return {
+            animation: animation,
+            animationFillMode: animationFillMode
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getStyle: function getStyle(i) {
+        return assign(this.getBallStyle(i), this.getAnimationStyle(i), {
+            display: 'inline-block'
+        });
+    },
+
+    /**
+     * @param  {Boolean} loading
+     * @return {ReactComponent || null}
+     */
+    renderLoader: function renderLoader(loading) {
+        if (loading) {
+            return React.createElement(
+                'div',
+                { id: this.props.id, className: this.props.className },
+                React.createElement('div', { style: this.getStyle(1) }),
+                React.createElement('div', { style: this.getStyle(2) }),
+                React.createElement('div', { style: this.getStyle(3) }),
+                React.createElement('div', { style: this.getStyle(4) }),
+                React.createElement('div', { style: this.getStyle(5) })
+            );
+        }
+
+        return null;
+    },
+
+    render: function render() {
+        return this.renderLoader(this.props.loading);
+    }
+});
+
+module.exports = Loader;
+
+/***/ }),
+/* 332 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(7);
+var assign = __webpack_require__(314);
+var insertKeyframesRule = __webpack_require__(315);
+
+/**
+ * @type {Object}
+ */
+var keyframes = {
+    '0%': {
+        transform: 'rotate(0deg)'
+    },
+    '50%': {
+        transform: 'rotate(180deg)'
+    },
+    '100%': {
+        transform: 'rotate(360deg)'
+    }
+};
+
+/**
+ * @type {String}
+ */
+var animationName = insertKeyframesRule(keyframes);
+
+var Loader = React.createClass({
+    displayName: 'Loader',
+
+    /**
+     * @type {Object}
+     */
+    propTypes: {
+        loading: React.PropTypes.bool,
+        color: React.PropTypes.string,
+        size: React.PropTypes.string,
+        margin: React.PropTypes.string
+    },
+
+    /**
+     * @return {Object}
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            loading: true,
+            color: '#ffffff',
+            size: '15px',
+            margin: '2px'
+        };
+    },
+
+    /**
+     * @return {Object}
+     */
+    getBallStyle: function getBallStyle() {
+        return {
+            backgroundColor: this.props.color,
+            width: this.props.size,
+            height: this.props.size,
+            margin: this.props.margin,
+            borderRadius: '100%',
+            verticalAlign: this.props.verticalAlign
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getAnimationStyle: function getAnimationStyle(i) {
+        var animation = [animationName, '1s', '0s', 'infinite', 'cubic-bezier(.7,-.13,.22,.86)'].join(' ');
+        var animationFillMode = 'both';
+
+        return {
+            animation: animation,
+            animationFillMode: animationFillMode
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getStyle: function getStyle(i) {
+        if (i) {
+            return assign(this.getBallStyle(i), {
+                opacity: '0.8',
+                position: 'absolute',
+                top: 0,
+                left: i % 2 ? -28 : 25
+            });
+        }
+
+        return assign(this.getBallStyle(i), this.getAnimationStyle(i), {
+            display: 'inline-block',
+            position: 'relative'
+        });
+    },
+
+    /**
+     * @param  {Boolean} loading
+     * @return {ReactComponent || null}
+     */
+    renderLoader: function renderLoader(loading) {
+        if (loading) {
+            return React.createElement(
+                'div',
+                { id: this.props.id, className: this.props.className },
+                React.createElement(
+                    'div',
+                    { style: this.getStyle() },
+                    React.createElement('div', { style: this.getStyle(1) }),
+                    React.createElement('div', { style: this.getStyle(2) })
+                )
+            );
+        }
+
+        return null;
+    },
+
+    render: function render() {
+        return this.renderLoader(this.props.loading);
+    }
+});
+
+module.exports = Loader;
+
+/***/ }),
+/* 333 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(7);
+var assign = __webpack_require__(314);
+var insertKeyframesRule = __webpack_require__(315);
+
+/**
+ * @type {Object}
+ */
+var keyframes = {
+    '0%': {
+        transform: 'scaley(1.0)'
+    },
+    '50%': {
+        transform: 'scaley(0.4)'
+    },
+    '100%': {
+        transform: 'scaley(1.0)'
+    }
+};
+
+/**
+ * @type {String}
+ */
+var animationName = insertKeyframesRule(keyframes);
+
+var Loader = React.createClass({
+    displayName: 'Loader',
+
+    /**
+     * @type {Object}
+     */
+    propTypes: {
+        loading: React.PropTypes.bool,
+        color: React.PropTypes.string,
+        height: React.PropTypes.string,
+        width: React.PropTypes.string,
+        margin: React.PropTypes.string,
+        radius: React.PropTypes.string
+    },
+
+    /**
+     * @return {Object}
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            loading: true,
+            color: '#ffffff',
+            height: '35px',
+            width: '4px',
+            margin: '2px',
+            radius: '2px'
+        };
+    },
+
+    /**
+     * @return {Object}
+     */
+    getLineStyle: function getLineStyle() {
+        return {
+            backgroundColor: this.props.color,
+            height: this.props.height,
+            width: this.props.width,
+            margin: this.props.margin,
+            borderRadius: this.props.radius,
+            verticalAlign: this.props.verticalAlign
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getAnimationStyle: function getAnimationStyle(i) {
+        var animation = [animationName, '1s', i * 0.1 + 's', 'infinite', 'cubic-bezier(.2,.68,.18,1.08)'].join(' ');
+        var animationFillMode = 'both';
+
+        return {
+            animation: animation,
+            animationFillMode: animationFillMode
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getStyle: function getStyle(i) {
+        return assign(this.getLineStyle(i), this.getAnimationStyle(i), {
+            display: 'inline-block'
+        });
+    },
+
+    /**
+     * @param  {Boolean} loading
+     * @return {ReactComponent || null}
+     */
+    renderLoader: function renderLoader(loading) {
+        if (loading) {
+            return React.createElement(
+                'div',
+                { id: this.props.id, className: this.props.className },
+                React.createElement('div', { style: this.getStyle(1) }),
+                React.createElement('div', { style: this.getStyle(2) }),
+                React.createElement('div', { style: this.getStyle(3) }),
+                React.createElement('div', { style: this.getStyle(4) }),
+                React.createElement('div', { style: this.getStyle(5) })
+            );
+        }
+
+        return null;
+    },
+
+    render: function render() {
+        return this.renderLoader(this.props.loading);
+    }
+});
+
+module.exports = Loader;
+
+/***/ }),
+/* 334 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(7);
+var assign = __webpack_require__(314);
+var insertKeyframesRule = __webpack_require__(315);
+
+/**
+ * @type {Object}
+ */
+var keyframes = {
+    '25%': {
+        transform: 'perspective(100px) rotateX(180deg) rotateY(0)'
+    },
+    '50%': {
+        transform: 'perspective(100px) rotateX(180deg) rotateY(180deg)'
+    },
+    '75%': {
+        transform: 'perspective(100px) rotateX(0) rotateY(180deg)'
+    },
+    '100%': {
+        transform: 'perspective(100px) rotateX(0) rotateY(0)'
+    }
+};
+
+/**
+ * @type {String}
+ */
+var animationName = insertKeyframesRule(keyframes);
+
+var Loader = React.createClass({
+    displayName: 'Loader',
+
+    /**
+     * @type {Object}
+     */
+    propTypes: {
+        loading: React.PropTypes.bool,
+        color: React.PropTypes.string,
+        size: React.PropTypes.string
+    },
+
+    /**
+     * @return {Object}
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            loading: true,
+            color: '#ffffff',
+            size: '20px'
+        };
+    },
+
+    /**
+     * @return {Object}
+     */
+    getSharpStyle: function getSharpStyle() {
+        return {
+            width: 0,
+            height: 0,
+            borderLeft: this.props.size + ' solid transparent',
+            borderRight: this.props.size + ' solid transparent',
+            borderBottom: this.props.size + ' solid ' + this.props.color,
+            verticalAlign: this.props.verticalAlign
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getAnimationStyle: function getAnimationStyle(i) {
+        var animation = [animationName, '3s', '0s', 'infinite', 'cubic-bezier(.09,.57,.49,.9)'].join(' ');
+        var animationFillMode = 'both';
+
+        return {
+            animation: animation,
+            animationFillMode: animationFillMode
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getStyle: function getStyle(i) {
+        return assign(this.getSharpStyle(i), this.getAnimationStyle(i), {
+            display: 'inline-block'
+        });
+    },
+
+    /**
+     * @param  {Boolean} loading
+     * @return {ReactComponent || null}
+     */
+    renderLoader: function renderLoader(loading) {
+        if (loading) {
+            return React.createElement(
+                'div',
+                { id: this.props.id, className: this.props.className },
+                React.createElement('div', { style: this.getStyle() })
+            );
+        };
+
+        return null;
+    },
+
+    render: function render() {
+        return this.renderLoader(this.props.loading);
+    }
+});
+
+module.exports = Loader;
+
+/***/ }),
+/* 335 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(7);
+var assign = __webpack_require__(314);
+var insertKeyframesRule = __webpack_require__(315);
+
+/**
+ * @type {Object}
+ */
+var keyframes = {
+    '25%': {
+        transform: 'rotateX(180deg) rotateY(0)'
+    },
+    '50%': {
+        transform: 'rotateX(180deg) rotateY(180deg)'
+    },
+    '75%': {
+        transform: 'rotateX(0) rotateY(180deg)'
+    },
+    '100%': {
+        transform: 'rotateX(0) rotateY(0)'
+    }
+};
+
+/**
+ * @type {String}
+ */
+var animationName = insertKeyframesRule(keyframes);
+
+var Loader = React.createClass({
+    displayName: 'Loader',
+
+    /**
+     * @type {Object}
+     */
+    propTypes: {
+        loading: React.PropTypes.bool,
+        color: React.PropTypes.string,
+        size: React.PropTypes.string,
+        margin: React.PropTypes.string
+    },
+
+    /**
+     * @return {Object}
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            loading: true,
+            color: '#ffffff',
+            size: '50px'
+        };
+    },
+
+    /**
+     * @return {Object}
+     */
+    getSquareStyle: function getSquareStyle() {
+        return {
+            backgroundColor: this.props.color,
+            width: this.props.size,
+            height: this.props.size,
+            verticalAlign: this.props.verticalAlign
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getAnimationStyle: function getAnimationStyle(i) {
+        var animation = [animationName, '3s', '0s', 'infinite', 'cubic-bezier(.09,.57,.49,.9)'].join(' ');
+        var animationFillMode = 'both';
+        var perspective = '100px';
+
+        return {
+            perspective: perspective,
+            animation: animation,
+            animationFillMode: animationFillMode
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getStyle: function getStyle(i) {
+        return assign(this.getSquareStyle(i), this.getAnimationStyle(i), {
+            display: 'inline-block'
+        });
+    },
+
+    /**
+     * @param  {Boolean} loading
+     * @return {ReactComponent || null}
+     */
+    renderLoader: function renderLoader(loading) {
+        if (loading) {
+            return React.createElement(
+                'div',
+                { id: this.props.id, className: this.props.className },
+                React.createElement('div', { style: this.getStyle() })
+            );
+        }
+
+        return null;
+    },
+
+    render: function render() {
+        return this.renderLoader(this.props.loading);
+    }
+});
+
+module.exports = Loader;
+
+/***/ }),
+/* 336 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var React = __webpack_require__(7);
+var assign = __webpack_require__(314);
+var insertKeyframesRule = __webpack_require__(315);
+
+/**
+ * @type {Object}
+ */
+var keyframes = {
+    '33%': {
+        transform: 'translateY(10px)'
+    },
+    '66%': {
+        transform: 'translateY(-10px)'
+    },
+    '100%': {
+        transform: 'translateY(0)'
+    }
+};
+
+/**
+ * @type {String}
+ */
+var animationName = insertKeyframesRule(keyframes);
+
+var Loader = React.createClass({
+    displayName: 'Loader',
+
+    /**
+     * @type {Object}
+     */
+    propTypes: {
+        loading: React.PropTypes.bool,
+        color: React.PropTypes.string,
+        size: React.PropTypes.string,
+        margin: React.PropTypes.string
+    },
+
+    /**
+     * @return {Object}
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            loading: true,
+            color: '#ffffff',
+            size: '15px',
+            margin: '2px'
+        };
+    },
+
+    /**
+     * @return {Object}
+     */
+    getBallStyle: function getBallStyle() {
+        return {
+            backgroundColor: this.props.color,
+            width: this.props.size,
+            height: this.props.size,
+            margin: this.props.margin,
+            borderRadius: '100%',
+            verticalAlign: this.props.verticalAlign
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getAnimationStyle: function getAnimationStyle(i) {
+        var animation = [animationName, '0.6s', i * 0.07 + 's', 'infinite', 'ease-in-out'].join(' ');
+        var animationFillMode = 'both';
+
+        return {
+            animation: animation,
+            animationFillMode: animationFillMode
+        };
+    },
+
+    /**
+     * @param  {Number} i
+     * @return {Object}
+     */
+    getStyle: function getStyle(i) {
+        return assign(this.getBallStyle(i), this.getAnimationStyle(i), {
+            display: 'inline-block'
+        });
+    },
+
+    /**
+     * @param  {Boolean} loading
+     * @return {ReactComponent || null}
+     */
+    renderLoader: function renderLoader(loading) {
+        if (loading) {
+            return React.createElement(
+                'div',
+                { id: this.props.id, className: this.props.className },
+                React.createElement('div', { style: this.getStyle(1) }),
+                React.createElement('div', { style: this.getStyle(2) }),
+                React.createElement('div', { style: this.getStyle(3) })
+            );
+        };
+
+        return null;
+    },
+
+    render: function render() {
+        return this.renderLoader(this.props.loading);
+    }
+});
+
+module.exports = Loader;
+
+/***/ }),
+/* 337 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(7);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _weather_api_util = __webpack_require__(24);
+
+var _weather_actions = __webpack_require__(39);
+
+var _reactRedux = __webpack_require__(37);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var ExampleItem = function (_React$Component) {
+  _inherits(ExampleItem, _React$Component);
+
+  function ExampleItem(props) {
+    _classCallCheck(this, ExampleItem);
+
+    var _this = _possibleConstructorReturn(this, (ExampleItem.__proto__ || Object.getPrototypeOf(ExampleItem)).call(this, props));
+
+    _this.handleClick = _this.handleClick.bind(_this);
+    _this.state = { loading: false };
+    return _this;
+  }
+
+  _createClass(ExampleItem, [{
+    key: 'handleClick',
+    value: function handleClick(e) {
+      var _this2 = this;
+
+      e.preventDefault();
+      (0, _weather_api_util.search)(this.props.city).then(function (response) {
+        // this.state.location = response.results[0].formatted_address;
+        return (0, _weather_api_util.fetchStation)(response.results[0].geometry.location.lat, response.results[0].geometry.location.lng, parseInt(_this2.props.year));
+      }).then(function (results) {
+        return _this2.props.fetchAnnual(results.results[0].id, parseInt(_this2.props.year));
+      }).then(function () {
+        // this.state.header_year = this.props.year;
+        _this2.setState({ loading: false });
+      });
+
+      this.setState({ loading: true });
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        { className: 'example-item-container' },
+        _react2.default.createElement(
+          'div',
+          { className: 'example-item-image', onClick: this.handleClick },
+          _react2.default.createElement('img', { src: 'app/assets/images/' + this.props.image + '.png' })
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'example-item-header' },
+          this.props.city + " " + this.props.year,
+          ' -'
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'example-item-sub-header' },
+          this.props.sub
+        )
+      );
+    }
+  }]);
+
+  return ExampleItem;
+}(_react2.default.Component);
+
+var mapStateToProps = function mapStateToProps(state, ownProps) {
+  return {};
+};
+
+var mapDispatchToProps = function mapDispatchToProps(dispatch, ownProps) {
+  return {
+    fetchAnnual: function fetchAnnual(stationId, startDate, endDate) {
+      return dispatch((0, _weather_actions.fetchAnnual)(stationId, startDate, endDate));
+    }
+  };
+};
+
+exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(ExampleItem);
+
+/***/ }),
+/* 338 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(7);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _example_item = __webpack_require__(337);
+
+var _example_item2 = _interopRequireDefault(_example_item);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Examples = function (_React$Component) {
+  _inherits(Examples, _React$Component);
+
+  function Examples(props) {
+    _classCallCheck(this, Examples);
+
+    return _possibleConstructorReturn(this, (Examples.__proto__ || Object.getPrototypeOf(Examples)).call(this, props));
+  }
+
+  _createClass(Examples, [{
+    key: 'render',
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        { className: 'examples-container' },
+        _react2.default.createElement(
+          'ul',
+          { className: 'example-list' },
+          _react2.default.createElement(
+            'li',
+            null,
+            _react2.default.createElement(_example_item2.default, { image: "Boston2014", city: "Boston", year: "2014", sub: "A normal year" })
+          ),
+          _react2.default.createElement(
+            'li',
+            null,
+            _react2.default.createElement(_example_item2.default, { image: "Chicago1893", city: "Chicago", year: "1893", sub: "World's Columbian Exposition" })
+          ),
+          _react2.default.createElement(
+            'li',
+            null,
+            _react2.default.createElement(_example_item2.default, { image: "NewYork1929", city: "New York", year: "1929", sub: "Start of the Great Depression" })
+          ),
+          _react2.default.createElement(
+            'li',
+            null,
+            _react2.default.createElement(_example_item2.default, { image: "Beijing2008", city: "Beijing", year: "2008", sub: "Olympics XXIX" })
+          ),
+          _react2.default.createElement(
+            'li',
+            null,
+            _react2.default.createElement(_example_item2.default, { image: "Canberra2015", city: "Canberra", year: "2015", sub: "The Southern Hemisphere" })
+          ),
+          _react2.default.createElement(
+            'li',
+            null,
+            _react2.default.createElement(_example_item2.default, { image: "Berlin1989", city: "Berlin", year: "1989", sub: "Fall of the Berlin Wall" })
+          ),
+          _react2.default.createElement(
+            'li',
+            null,
+            _react2.default.createElement(_example_item2.default, { image: "Paris1940", city: "Paris", year: "1940", sub: "Germany Invades France" })
+          ),
+          _react2.default.createElement(
+            'li',
+            null,
+            _react2.default.createElement(_example_item2.default, { image: "BakerLake2015", city: "Baker Lake Canada", year: "2015", sub: "Craziness" })
+          )
+        )
+      );
+    }
+  }]);
+
+  return Examples;
+}(_react2.default.Component);
+
+exports.default = Examples;
 
 /***/ })
 /******/ ]);

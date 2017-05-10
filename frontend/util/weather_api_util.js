@@ -23,12 +23,22 @@ export const search = (location) => {
 // Sample for Data request:
 // https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&startdate=2014-01-01&enddate=2015-01-01&stationid=GHCND:USW00014732&datatypeid=TMIN&units=standard&datatypeid=TMAX
 
-export const fetchAnnual = (stationId, startDate, endDate) => {
-  // Date Format: YYYY-MM-DD
+export const fetchAnnual = (stationId, year) => {
+  console.log(`https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&startdate=${year}-01-01&enddate=${year + 1}-01-01&stationid=${stationId}&datatypeid=TMIN&datatypeid=TMAX&units=standard&limit=750`);
   return $.ajax({
     method: "GET",
     headers: { "token":"wUdKaVEYoXeeSRvoAIOPADrHwuzTZzYw" },
-    url: `https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&startdate=${startDate}&enddate=${endDate}&stationid=${stationId}&datatypeid=TMIN&datatypeid=TMAX&units=standard&limit=750`
+    url: `https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&startdate=${year}-01-01&enddate=${year + 1}-01-01&stationid=${stationId}&datatypeid=TMIN&datatypeid=TMAX&units=standard&limit=750`
+  });
+};
 
+// https://www.ncdc.noaa.gov/cdo-web/api/v2/stations?datasetid=GHCND&extent=40.5204,-74.2047,41.0139,-73.5065&startdate=2014-01-01&enddate=2015-01-01&datatypeid=TMAX
+
+export const fetchStation = (lat, lon, year) => {
+  console.log(`https://www.ncdc.noaa.gov/cdo-web/api/v2/stations?datasetid=GHCND&extent=${lat - 1.0},${lon - 1.0},${lat + 1.0},${lon + 1.0}&startdate=${year}-01-01&enddate=${year + 1}-01-01&datatypeid=TMAX&sortfield=datacoverage&limit=5&sortorder=desc`);
+  return $.ajax({
+    method: 'GET',
+    headers: { "token":"wUdKaVEYoXeeSRvoAIOPADrHwuzTZzYw" },
+    url: `https://www.ncdc.noaa.gov/cdo-web/api/v2/stations?datasetid=GHCND&extent=${lat - 1.0},${lon - 1.0},${lat + 1.0},${lon + 1.0}&startdate=${year}-01-01&enddate=${year + 1}-01-01&datatypeid=TMAX&sortfield=datacoverage&limit=5&sortorder=desc`
   });
 };

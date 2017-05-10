@@ -89,7 +89,7 @@ class RadialChart extends React.Component {
 
     this.props.generateSpokes(barWrapper, innerRadius, outerRadius);
     this.props.plotBars(_weather, barWrapper, angle, barScale, colorScale);
-    this.props.plotDates(outerRadius, barWrapper);
+    this.props.plotDates(outerRadius, barWrapper, _weather[0].date.getYear() + 1900);
   }
 
   render() {
