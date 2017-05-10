@@ -39,7 +39,10 @@ body {
   text-align: left;
   color: #333;
   padding-left: 20px;
+}
 
+.radial-container {
+  background-color: #fffcfc;
 }
 
 .flex-right {
