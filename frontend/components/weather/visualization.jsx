@@ -76,20 +76,25 @@ class Visualization extends React.Component {
           </div>
           <div className="sidebar-search-container">
             <form onSubmit={ this.handleSubmit }>
-              <input className="search-input"
-                     placeholder="Search Location"
-                     onChange={ this._update('search') }
-                     value={ this.state.search }/>
+              <div className="search-input-container">
+                <input className="search-input"
+                  placeholder="Search Location"
+                  onChange={ this._update('search') }
+                  value={ this.state.search }
+                  tabindex="1"/>
+                <button className="search-button" tabindex="-1">
+                  { !this.state.loading &&  <i className="fa fa-search" tabindex="-1"/> }
+                  { this.state.loading && <div className="spinner" tabindex="-1"><Halogen.ClipLoader color={'#4DAF7C'} /></div> }
+
+                </button>
+              </div>
 
              <input className="search-input"
                     placeholder="Date (YYYY)"
                     onChange={ this._update('year') }
-                    value={ this.state.year }/>
-              <button className="search-button">
-                { !this.state.loading &&  <i className="fa fa-search" /> }
-                { this.state.loading && <div className="spinner"><Halogen.ClipLoader color={'#4DAF7C'} /></div> }
-              </button>
+                    value={ this.state.year } />
             </form>
+
             { (this.state.error.length > 0) && <div>{ this.state.error }</div> }
           </div>
 
@@ -110,6 +115,12 @@ class Visualization extends React.Component {
         <div className="radial-container">
           <div>
             <h1 className="radial-header">Annual Radial Weather Visualization for { this.props.city } in { this.props.weather[0].date.getYear() + 1900 }</h1>
+            <h2 className="radial-sub-header">
+              The diagram below displays annual high & low temperatures for a specifed city in a radial format.
+              Search for any city in the world and enter a year going back to 1875, or click on an example shown in the sidebar.
+              Coordinate data is provided by the Google Geocoding API and climate data is provided by NOAA NCDC: Climate Data Online.
+            </h2>
+
           </div>
           <RadialChart weather={ this.props.weather } />
         </div>

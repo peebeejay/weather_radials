@@ -22,7 +22,6 @@ class RadialChart extends React.Component {
   }
 
   renderChart() {
-    console.log(`rendering the chart SVG objects for a city`);
     let _weather = this.props.weather;
 
     let margin = { top: 70, right: 20, bottom: 20, left: 20 };
@@ -89,7 +88,6 @@ class RadialChart extends React.Component {
   }
 
   render() {
-    console.log("rendering radial chart");
     return (
       <div>
         <div id="weatherRadial"
