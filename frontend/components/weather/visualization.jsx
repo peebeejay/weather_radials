@@ -105,8 +105,9 @@ class Visualization extends React.Component {
           <div className="sidebar-footer-container">
             <div className="sidebar-footer">
               <span>
-                <a href="http://jaypb.io" target="_blank">Jay Puntham-Baker - </a>
-                <a href="http://github.com/vdersar1/weather_lite" target="_blank"> Github</a>
+                <a className="footer-links" href="http://jaypb.io" target="_blank">Jay Puntham-Baker - </a>
+                <a className="footer-links" href="http://github.com/vdersar1/weather_lite" target="_blank"> Github - </a>
+                <a className="footer-links" href="https://www.linkedin.com/in/jay-puntham-baker-ba573a4/" target="_blank"> LinkedIn</a>
               </span>
             </div>
           </div>

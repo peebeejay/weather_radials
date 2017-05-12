@@ -68,6 +68,10 @@ body {
   background-color: #fffcfc;
 }
 
+.footer-links:hover {
+  color: #333;
+}
+
 .flex-right {
   display: flex;
 }
