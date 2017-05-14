@@ -1,6 +1,6 @@
 # Weather Radials
 
-**Description:**
+**Description:**  
 Weather Radials is a weather visualization application that presents historical high and low temperature data for a specific location as a radial weather diagram.  
 
 The application provides users with the ability to click on example location / year pairs in the sidebar, in addition to the ability to search for any location in the world - with some restrictions - and view respective climate data for a given year.  
@@ -17,12 +17,12 @@ The application gathers the relevant data in a three step process using the Goog
 3. Selects the station returned in the previous step and requests maximum and minimum daily temperature data for a specified time period for that location.  
 4. Data is converted into a form easily used by jQuery and D3.js and is then rendered as a radial diagram.   
 
-**Directions:**
+**Directions:**  
 Enter a location name and year, or click on an example in the sidebar to display a weather radial visualization of a location's annual climate data.  
 
 **Website URL:** http://jaypb.io/weather_radials
 
-**Data:**
+**Data:**  
 Data is provided by the following APIs:  
 1. Google geocoding API  
 2. NOAA NCDC: Climate Data Online  
