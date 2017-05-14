@@ -7,7 +7,7 @@ Weather Radials is a weather visualization application that presents historical 
 
 The application provides users with the ability to click on example location / year pairs in the sidebar, in addition to the ability to search for any location in the world - with some restrictions - and view respective climate data for a given year.  
 
-Weather Radials is build using a React/Redux front-end to create a streamlined application structure using a global store that contains appropriate weather data, and additionally uses jQuery to render the visualization, which is created using D3.js.
+Weather Radials is build using a React/Redux front-end to create a streamlined application structure using a global store that contains appropriate weather data, and additionally uses jQuery to render the visualization, which is created using the data visualization library, D3.js.
 
 **Challenges:**  
 Some challenges that were encountered during the creation of this application were the integration of the search feature and the rendering of the visualization itself, specifically tooltips and poor data. The first challenge was solved through the fine-tuning of API calls, especially the  coordinate deltas used to find appropriate stations for a given location. The second challenge was solved by creating a div that would appear and disappear based on jQuery mouseenter and mouseout event listeners. The third challenge was solved by assuming a temperature delta of 15F for days missing a single data point, while not rendering days with no maximum or minimum temperatures present.  
