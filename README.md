@@ -1,5 +1,7 @@
 # Weather Radials
 
+**Website URL:** http://jaypb.io/weather_radials
+
 **Description:**  
 Weather Radials is a weather visualization application that presents historical high and low temperature data for a specific location as a radial weather diagram.  
 
@@ -20,7 +22,6 @@ The application gathers the relevant data in a three step process using the Goog
 **Directions:**  
 Enter a location name and year, or click on an example in the sidebar to display a weather radial visualization of a location's annual climate data.  
 
-**Website URL:** http://jaypb.io/weather_radials
 
 **Data:**  
 Data is provided by the following APIs:  
