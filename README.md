@@ -19,6 +19,34 @@ The application gathers the relevant data in a three step process using the Goog
 3. Selects the station returned in the previous step and requests maximum and minimum daily temperature data for a specified time period for that location.  
 4. Data is converted into a form easily used by jQuery and D3.js and is then rendered as a radial diagram.   
 
+**Code Examples:**
+1. Color, bar, and angle scaling was performed using the scaleLinear() function found within the D3.js library. this was used create scales based on maximum high and low temperatures in the entire set of data. The following code creates the color scale used in the visualization:    
+
+```javascript
+let colorScale = d3.scaleLinear()
+  .domain([0, 50, 100])
+  .range(["#2c7bb6", "#ffff8c", "#d7191c"])
+  .interpolate(d3.interpolateHcl);
+```
+
+2. At a high level, temperature bars were drawn by selecting the 365 tempBar items previously created, rotating them based on the linear angle scale defined earlier, defining their height based on the min and max daily temperature, and finally assigning a fill color based on the average daily temperature. The following code performs these actions:  
+
+```javascript
+barWrapper.selectAll(".tempBar")
+  .data(_weather)
+  .enter().append("rect")
+  .attr("class", (d, i) => `tempBar tempBar-${i}`)
+  .attr("transform", (d, i) => { return "rotate(" + (angle(d.date.getTime() / 1000)) + ")"; })
+  .attr("width", 1.5)
+  .attr("height", (d, i) => barScale(d.TMAX) - barScale(d.TMIN) )
+  .attr("x", -0.75)
+  .attr("y", (d, i) => { return barScale(d.TMIN); })
+  .attr("tempMin", d => `${d.TMIN}`)
+  .attr("tempMax", d => `${d.TMAX}`)
+  .attr("date", d => `${ d3.timeFormat("%H:%M")(d.date) }`)
+  .style("fill", d => { return colorScale((d.TMAX + d.TMIN) / 2.0); })
+```
+
 **Directions:**  
 Enter a location name and year, or click on an example in the sidebar to display a weather radial visualization of a location's annual climate data.  
 
