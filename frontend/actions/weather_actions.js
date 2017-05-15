@@ -27,6 +27,13 @@ export const fetchDaily = (lat, lon) => dispatch => {
 
 export const fetchAnnual = (stationId, year, city) => dispatch => {
   return WeatherAPIUtil.fetchAnnual(stationId, year).then(
-    (weather) => dispatch(receiveWeather(weather, city))
+    (weather) => {
+      if (weather.results) {
+        dispatch(receiveWeather(weather, city));
+        return weather;
+      } else {
+        return {};
+      }
+    }
   );
 };

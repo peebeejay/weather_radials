@@ -28,13 +28,14 @@ class Visualization extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
+    let that = this;
+
     this.setState({ error: "" })
     if (this.state.location.length > 0 && this.state.year.length > 0) {
       search(this.state.search).then(
         (response) => {
-          if (response.status === "ZERO_RESULTS") {
+          if (response.status === "ZERO_RESULTS")
             return this.setState({ loading: false, error: "Please Try Something Else" })
-          }
           this.state.location = response.results[0].formatted_address;
           return fetchStation(response.results[0].geometry.location.lat, response.results[0].geometry.location.lng, parseInt(this.state.year))
           }
@@ -45,14 +46,17 @@ class Visualization extends React.Component {
           return this.props.fetchAnnual(results.results[0].id, parseInt(this.state.year), this.state.location)
         }
       ).then(
-        () => {
+        (results) => {
+          if (_.isEmpty(results))
+             return this.setState({ loading: false, error: "No Data Returned - Please Try Something Else " })
           this.state.header_year = this.state.year;
-          this.setState({ loading: false, search: "", year: "" })
+          return this.setState({ loading: false, search: "", year: "" })
         }
       )
       this.setState({ loading: true})
-    } else {
-      this.setState({ error: "Please enter search fields" })
+    }
+    else {
+      this.setState({ error: "Please enter values for all search fields" })
     }
   }
 
@@ -65,7 +69,7 @@ class Visualization extends React.Component {
 
   render() {
     if ( _.isEmpty(this.props.weather) ) {
-      return (<div>Loading Weather Radials......</div> );
+      return (<div>Please Be Patient - Loading Weather Radials...</div> );
     }
 
     return(
@@ -81,10 +85,10 @@ class Visualization extends React.Component {
                   placeholder="Search Location"
                   onChange={ this._update('search') }
                   value={ this.state.search }
-                  tabindex="1"/>
-                <button className="search-button" tabindex="-1">
-                  { !this.state.loading &&  <i className="fa fa-search" tabindex="-1"/> }
-                  { this.state.loading && <div className="spinner" tabindex="-1"><Halogen.ClipLoader color={'#4DAF7C'} /></div> }
+                  tabIndex="1"/>
+                <button className="search-button" tabIndex="-1">
+                  { !this.state.loading &&  <i className="fa fa-search" tabIndex="-1"/> }
+                  { this.state.loading && <div className="spinner" tabIndex="-1"><Halogen.ClipLoader color={'#4DAF7C'} /></div> }
 
                 </button>
               </div>
@@ -92,7 +96,8 @@ class Visualization extends React.Component {
              <input className="search-input"
                     placeholder="Date (YYYY)"
                     onChange={ this._update('year') }
-                    value={ this.state.year } />
+                    value={ this.state.year }
+                    tabIndex="2" />
             </form>
 
             { (this.state.error.length > 0) && <div>{ this.state.error }</div> }

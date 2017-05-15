@@ -1,9 +1,9 @@
 import { isEmpty } from 'lodash';
 
 export const annualSelector = (weather) => {
-  if (!_.isEmpty(weather)) {
-    let packaged_data = []; // [{ date: '...', TMAX: X, TMIN: Y }, {...}, ...]
+  let packaged_data = []; // [{ date: '...', TMAX: X, TMIN: Y }, {...}, ...]
 
+  if (!_.isEmpty(weather) ) {
     let year = getOffsetDate(weather.results[0].date).getYear() + 1900;
     let date_iterator = new Date(year, 0, 1);
 
@@ -11,7 +11,6 @@ export const annualSelector = (weather) => {
       let daily_data = { date: new Date(date_iterator), TMAX: 0, TMIN: 0 };
 
       for (let y = 0; y < weather.results.length; y++){
-        // debugger
         if (getOffsetDate(weather.results[y].date).getTime() === daily_data.date.getTime() ||
             new Date(weather.results[y].date).getTime() === daily_data.date.getTime() ) {
           if (weather.results[y].datatype === "TMAX") {
@@ -36,7 +35,6 @@ export const annualSelector = (weather) => {
       packaged_data.push(daily_data);
       date_iterator.setDate(date_iterator.getDate() + 1);
     }
-    // debugger
     return packaged_data;
 
   } else {

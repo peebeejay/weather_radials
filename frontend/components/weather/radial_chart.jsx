@@ -8,9 +8,6 @@ class RadialChart extends React.Component {
   constructor(props) {
     super(props);
     this.renderChart = this.renderChart.bind(this);
-    this.state = { margin: {}, width: {}, height: {},
-                   svg: {}, outerRadius: {}, colorScale: {}, barScale: {}, angle: {}
-                 };
   }
 
   componentDidMount() {
