@@ -24,7 +24,7 @@ Some challenges that were encountered during the creation of this application we
 
 
 **Code Examples:**
-1. Color, bar, and angle scaling was performed using the scaleLinear() function found within the D3.js library. this was used create scales based on maximum high and low temperatures in the entire set of data. The following code creates the color scale used in the visualization:    
+1. Color, bar, and angle scaling was performed using the scaleLinear() function found within the D3.js library. This was used to create scales based on maximum high and low temperatures in the entire set of data returned. The following code creates the color scale used in the visualization:    
 
 ```javascript
 let colorScale = d3.scaleLinear()
@@ -33,7 +33,7 @@ let colorScale = d3.scaleLinear()
   .interpolate(d3.interpolateHcl);
 ```
 
-2. At a high level, temperature bars were drawn by selecting the 365 tempBar items previously created, rotating them based on the linear angle scale defined earlier, defining their height based on the min and max daily temperature, and finally assigning a fill color based on the average daily temperature. The following code performs these actions:  
+2. At a high level, temperature bars were drawn by selecting the 365 tempBar items previously created, rotating them based on the linear angle scale defined earlier, defining their height based on the min and max daily temperatures, and finally assigning a fill color based on the average daily temperature. The following code performs these actions:  
 
 ```javascript
 barWrapper.selectAll(".tempBar")
