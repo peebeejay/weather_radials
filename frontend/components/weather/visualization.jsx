@@ -28,10 +28,9 @@ class Visualization extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    let that = this;
 
     this.setState({ error: "" })
-    if (this.state.location.length > 0 && this.state.year.length > 0) {
+    if (this.state.search.length > 0 && this.state.year.length > 0) {
       search(this.state.search).then(
         (response) => {
           if (response.status === "ZERO_RESULTS")
@@ -69,7 +68,7 @@ class Visualization extends React.Component {
 
   render() {
     if ( _.isEmpty(this.props.weather) ) {
-      return (<div>Please Be Patient - Loading Weather Radials...</div> );
+      return (<div>Please Be Patient - Loading Weather Radials... ...</div> );
     }
 
     return(

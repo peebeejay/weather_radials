@@ -52,7 +52,6 @@ barWrapper.selectAll(".tempBar")
 ```
 
 
-
 **Data:**  
 Data is provided by the following APIs:  
 1. Google geocoding API  
